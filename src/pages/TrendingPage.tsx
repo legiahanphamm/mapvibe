@@ -6,12 +6,28 @@ import { useNavigate } from "react-router-dom";
 
 const MAP_CENTER = { lat: 10.775, lng: 106.698 };
 
+type TimeFilter = "today" | "week" | "all";
+
+const timeFilters: { id: TimeFilter; label: string }[] = [
+  { id: "today", label: "Today" },
+  { id: "week", label: "This Week" },
+  { id: "all", label: "All Time" },
+];
+
 const HeatMapPage = () => {
   const navigate = useNavigate();
   const [selectedPin, setSelectedPin] = useState<string | null>(null);
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>("today");
 
-  const sorted = [...restaurants].sort((a, b) => b.checkins - a.checkins);
-  const selectedRestaurant = restaurants.find((r) => r.id === selectedPin);
+  // Simulate different data per time filter
+  const filteredRestaurants = timeFilter === "today"
+    ? restaurants.filter((_, i) => [0, 1, 5, 7].includes(i))
+    : timeFilter === "week"
+    ? restaurants.filter((_, i) => [0, 1, 2, 3, 5, 7].includes(i))
+    : restaurants;
+
+  const sorted = [...filteredRestaurants].sort((a, b) => b.checkins - a.checkins);
+  const selectedRestaurant = filteredRestaurants.find((r) => r.id === selectedPin);
 
   // Convert lat/lng to percentage position on our fake map
   const toPosition = (lat: number, lng: number) => ({
@@ -49,6 +65,25 @@ const HeatMapPage = () => {
         </div>
       </div>
 
+      {/* Time Filter Tabs */}
+      <div className="absolute top-[7rem] left-0 right-0 z-20 px-5">
+        <div className="flex gap-1.5 rounded-full bg-card/90 backdrop-blur-sm p-1 shadow-card w-fit mx-auto">
+          {timeFilters.map((tf) => (
+            <button
+              key={tf.id}
+              onClick={() => { setTimeFilter(tf.id); setSelectedPin(null); }}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
+                timeFilter === tf.id
+                  ? "gradient-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tf.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Map Area */}
       <div className="relative w-full h-[65vh] bg-muted overflow-hidden">
         {/* Fake map grid lines */}
@@ -73,7 +108,7 @@ const HeatMapPage = () => {
         <span className="absolute top-[10%] left-[38%] text-[9px] text-muted-foreground/60 font-medium rotate-90 origin-left">Hai Ba Trung</span>
 
         {/* Heat blobs + pins */}
-        {restaurants.map((r) => {
+        {filteredRestaurants.map((r) => {
           const pos = toPosition(r.lat, r.lng);
           const isSelected = selectedPin === r.id;
           const heatSize = getHeatSize(r.checkins);
