@@ -1,3 +1,12 @@
+export interface FriendFeedback {
+  name: string;
+  avatar: string;
+  comment: string;
+  vibes: string[];
+  rating: number;
+  timestamp: string;
+}
+
 export interface Restaurant {
   id: string;
   name: string;
@@ -14,6 +23,9 @@ export interface Restaurant {
   menu: { name: string; price: string }[];
   checkins: number;
   friendsVisited: string[];
+  lat: number;
+  lng: number;
+  friendFeedback: FriendFeedback[];
 }
 
 export const moods = [
@@ -49,6 +61,12 @@ export const restaurants: Restaurant[] = [
     ],
     checkins: 128,
     friendsVisited: ["Minh", "Hana", "Duc"],
+    lat: 10.7731,
+    lng: 106.7030,
+    friendFeedback: [
+      { name: "Minh", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", comment: "Perfect study spot, love the matcha!", vibes: ["Non-spicy", "Café vibes", "Quiet"], rating: 5, timestamp: "2h ago" },
+      { name: "Hana", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", comment: "Aesthetic interior, great for photos 📸", vibes: ["Instagrammable", "Cozy"], rating: 4.5, timestamp: "1d ago" },
+    ],
   },
   {
     id: "2",
@@ -70,6 +88,12 @@ export const restaurants: Restaurant[] = [
     ],
     checkins: 456,
     friendsVisited: ["Linh", "Tuan"],
+    lat: 10.7745,
+    lng: 106.7005,
+    friendFeedback: [
+      { name: "Linh", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop", comment: "Wagyu was insane 🔥 bring your group!", vibes: ["Spicy options", "Group dinner", "Smoky"], rating: 4.5, timestamp: "3h ago" },
+      { name: "Tuan", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop", comment: "Best BBQ in D1, came back twice", vibes: ["Meaty", "Loud", "Fun"], rating: 5, timestamp: "5d ago" },
+    ],
   },
   {
     id: "3",
@@ -91,6 +115,12 @@ export const restaurants: Restaurant[] = [
     ],
     checkins: 234,
     friendsVisited: ["Hana", "Phuong", "Minh", "An"],
+    lat: 10.7820,
+    lng: 106.6920,
+    friendFeedback: [
+      { name: "Hana", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", comment: "Date night perfection 💕 not too spicy", vibes: ["Non-spicy", "Japanese", "Romantic"], rating: 5, timestamp: "12h ago" },
+      { name: "Phuong", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop", comment: "The tonkotsu broth is so rich!", vibes: ["Umami", "Warm", "Comforting"], rating: 4.5, timestamp: "2d ago" },
+    ],
   },
   {
     id: "4",
@@ -112,6 +142,11 @@ export const restaurants: Restaurant[] = [
     ],
     checkins: 892,
     friendsVisited: ["Duc"],
+    lat: 10.7880,
+    lng: 106.6850,
+    friendFeedback: [
+      { name: "Duc", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop", comment: "OG phở, must go early! 🍜", vibes: ["Vietnamese", "Authentic", "Non-spicy"], rating: 5, timestamp: "1w ago" },
+    ],
   },
   {
     id: "5",
@@ -133,6 +168,11 @@ export const restaurants: Restaurant[] = [
     ],
     checkins: 312,
     friendsVisited: ["Linh", "Hana"],
+    lat: 10.7710,
+    lng: 106.7060,
+    friendFeedback: [
+      { name: "Linh", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop", comment: "Sunset view is unreal! Perfect date spot", vibes: ["Italian", "Wine", "Romantic"], rating: 4.5, timestamp: "4d ago" },
+    ],
   },
   {
     id: "6",
@@ -154,6 +194,12 @@ export const restaurants: Restaurant[] = [
     ],
     checkins: 567,
     friendsVisited: ["Tuan", "Minh", "An"],
+    lat: 10.7760,
+    lng: 106.6980,
+    friendFeedback: [
+      { name: "Tuan", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop", comment: "Cheap and delicious, real street food!", vibes: ["Vietnamese", "Street food", "Slightly spicy"], rating: 4, timestamp: "6h ago" },
+      { name: "Minh", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", comment: "Go for the bún chả, skip the nem", vibes: ["Authentic", "Budget-friendly"], rating: 4.5, timestamp: "3d ago" },
+    ],
   },
   {
     id: "7",
@@ -175,6 +221,11 @@ export const restaurants: Restaurant[] = [
     ],
     checkins: 198,
     friendsVisited: ["Phuong"],
+    lat: 10.7550,
+    lng: 106.6770,
+    friendFeedback: [
+      { name: "Phuong", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop", comment: "Spicy chicken is 🔥🔥🔥 bring water!", vibes: ["Spicy", "Korean", "Loud"], rating: 4, timestamp: "2d ago" },
+    ],
   },
   {
     id: "8",
@@ -196,8 +247,16 @@ export const restaurants: Restaurant[] = [
     ],
     checkins: 445,
     friendsVisited: ["Hana", "Linh", "Minh"],
+    lat: 10.7770,
+    lng: 106.7040,
+    friendFeedback: [
+      { name: "Hana", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", comment: "Triple scoop is a must! So cute inside", vibes: ["Sweet", "Non-spicy", "Dessert"], rating: 5, timestamp: "1d ago" },
+      { name: "Minh", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", comment: "Affogato here is elite ☕", vibes: ["Coffee", "Chill", "Aesthetic"], rating: 4.5, timestamp: "5d ago" },
+    ],
   },
 ];
+
+
 
 export const trendingByTime = {
   morning: restaurants.filter((_, i) => [0, 3, 5].includes(i)),

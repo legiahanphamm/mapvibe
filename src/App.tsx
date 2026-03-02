@@ -7,7 +7,7 @@ import BottomNav from "@/components/BottomNav";
 import DiscoverPage from "@/pages/DiscoverPage";
 import AISearchPage from "@/pages/AISearchPage";
 import CheckInPage from "@/pages/CheckInPage";
-import TrendingPage from "@/pages/TrendingPage";
+import HeatMapPage from "@/pages/TrendingPage";
 import ProfilePage from "@/pages/ProfilePage";
 import RestaurantDetailPage from "@/pages/RestaurantDetailPage";
 import SpinPage from "@/pages/SpinPage";
@@ -26,7 +26,7 @@ const App = () => (
             <Route path="/" element={<DiscoverPage />} />
             <Route path="/ai" element={<AISearchPage />} />
             <Route path="/checkin" element={<CheckInPage />} />
-            <Route path="/trending" element={<TrendingPage />} />
+            <Route path="/trending" element={<HeatMapPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/restaurant/:id" element={<RestaurantDetailPage />} />
             <Route path="/spin" element={<SpinPage />} />

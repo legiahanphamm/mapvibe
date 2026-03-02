@@ -1,12 +1,12 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Compass, Sparkles, Camera, TrendingUp, User } from "lucide-react";
+import { Compass, Sparkles, Camera, Flame, User } from "lucide-react";
 
 const tabs = [
   { path: "/", icon: Compass, label: "Discover" },
   { path: "/ai", icon: Sparkles, label: "AI" },
   { path: "/checkin", icon: Camera, label: "Check-in" },
-  { path: "/trending", icon: TrendingUp, label: "Trending" },
+  { path: "/trending", icon: Flame, label: "Heat Map" },
   { path: "/profile", icon: User, label: "Profile" },
 ];
 

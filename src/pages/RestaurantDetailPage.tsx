@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, MapPin, Clock, Users, Heart, Share2, CalendarCheck } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Clock, Users, Heart, Share2, CalendarCheck, MessageCircle } from "lucide-react";
 import { restaurants } from "@/data/mockData";
 
 const RestaurantDetailPage = () => {
@@ -76,12 +76,69 @@ const RestaurantDetailPage = () => {
           </div>
         </div>
 
-        {/* Friends */}
+        {/* Friends' Feedback */}
+        {restaurant.friendFeedback.length > 0 && (
+          <div className="mt-4">
+            <h2 className="font-display text-sm font-semibold mb-3 flex items-center gap-1.5">
+              <MessageCircle className="h-4 w-4 text-primary" />
+              Friends' Reviews
+            </h2>
+            <div className="space-y-3">
+              {restaurant.friendFeedback.map((feedback) => (
+                <motion.div
+                  key={feedback.name}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-2xl bg-card p-4 shadow-card"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <img
+                      src={feedback.avatar}
+                      alt={feedback.name}
+                      className="h-9 w-9 rounded-full object-cover"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold">{feedback.name}</span>
+                        <span className="text-[10px] text-muted-foreground">{feedback.timestamp}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-3 w-3 ${
+                              i < Math.floor(feedback.rating)
+                                ? "fill-secondary text-secondary"
+                                : "text-border"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground/80 mt-2.5">{feedback.comment}</p>
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    {feedback.vibes.map((vibe) => (
+                      <span
+                        key={vibe}
+                        className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-medium text-muted-foreground"
+                      >
+                        {vibe}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Friends who visited */}
         {restaurant.friendsVisited.length > 0 && (
           <div className="mt-4">
             <h2 className="font-display text-sm font-semibold mb-2">Friends who've been here</h2>
             <div className="flex items-center gap-2">
-              {restaurant.friendsVisited.map((friend, i) => (
+              {restaurant.friendsVisited.map((friend) => (
                 <div key={friend} className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5">
                   <div className="h-5 w-5 rounded-full gradient-primary flex items-center justify-center">
                     <span className="text-[9px] font-bold text-primary-foreground">{friend[0]}</span>
