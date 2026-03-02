@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import DiscoverPage from "@/pages/DiscoverPage";
+import FeedPage from "@/pages/FeedPage";
 import AISearchPage from "@/pages/AISearchPage";
 import CheckInPage from "@/pages/CheckInPage";
 import HeatMapPage from "@/pages/TrendingPage";
@@ -25,6 +26,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<DiscoverPage />} />
             <Route path="/ai" element={<AISearchPage />} />
+            <Route path="/feed" element={<FeedPage />} />
             <Route path="/checkin" element={<CheckInPage />} />
             <Route path="/trending" element={<HeatMapPage />} />
             <Route path="/profile" element={<ProfilePage />} />
