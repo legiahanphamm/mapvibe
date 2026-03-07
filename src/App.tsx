@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import BottomNav from "@/components/BottomNav";
 import DiscoverPage from "@/pages/DiscoverPage";
 import FeedPage from "@/pages/FeedPage";
@@ -19,24 +20,26 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="mx-auto max-w-lg min-h-screen bg-background relative">
-          <Routes>
-            <Route path="/" element={<DiscoverPage />} />
-            <Route path="/ai" element={<AISearchPage />} />
-            <Route path="/feed" element={<FeedPage />} />
-            <Route path="/checkin" element={<CheckInPage />} />
-            <Route path="/trending" element={<HeatMapPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/restaurant/:id" element={<RestaurantDetailPage />} />
-            <Route path="/spin" element={<SpinPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <BottomNav />
-        </div>
-      </BrowserRouter>
+      <LanguageProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <div className="mx-auto max-w-lg min-h-screen bg-background relative">
+            <Routes>
+              <Route path="/" element={<DiscoverPage />} />
+              <Route path="/ai" element={<AISearchPage />} />
+              <Route path="/feed" element={<FeedPage />} />
+              <Route path="/checkin" element={<CheckInPage />} />
+              <Route path="/trending" element={<HeatMapPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/restaurant/:id" element={<RestaurantDetailPage />} />
+              <Route path="/spin" element={<SpinPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <BottomNav />
+          </div>
+        </BrowserRouter>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
