@@ -1,19 +1,20 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Compass, Rss, Camera, Flame, User } from "lucide-react";
-
-const tabs = [
-  { path: "/", icon: Compass, label: "Discover" },
-  { path: "/feed", icon: Rss, label: "Feed" },
-  { path: "/checkin", icon: Camera, label: "Check-in" },
-  { path: "/trending", icon: Flame, label: "Heat Map" },
-  { path: "/profile", icon: User, label: "Profile" },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const BottomNav = () => {
   const location = useLocation();
+  const { t } = useLanguage();
 
-  // Hide on restaurant detail page
+  const tabs = [
+    { path: "/", icon: Compass, labelKey: "nav.discover" },
+    { path: "/feed", icon: Rss, labelKey: "nav.feed" },
+    { path: "/checkin", icon: Camera, labelKey: "nav.checkin" },
+    { path: "/trending", icon: Flame, labelKey: "nav.heatmap" },
+    { path: "/profile", icon: User, labelKey: "nav.profile" },
+  ];
+
   if (location.pathname.startsWith("/restaurant/")) return null;
 
   return (
@@ -56,7 +57,7 @@ const BottomNav = () => {
                   isActive ? "text-primary" : "text-muted-foreground"
                 } ${tab.path === "/checkin" ? "mt-1" : ""}`}
               >
-                {tab.label}
+                {t(tab.labelKey)}
               </span>
             </NavLink>
           );
