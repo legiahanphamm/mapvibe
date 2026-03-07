@@ -1,19 +1,100 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, SlidersHorizontal, Sparkles, ChevronRight } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, Sparkles, ChevronRight, X, DollarSign, Heart, Smile } from "lucide-react";
 import { restaurants, moods, foodCategories } from "@/data/mockData";
 import RestaurantCard from "@/components/RestaurantCard";
 import MoodChip from "@/components/MoodChip";
 import { useNavigate } from "react-router-dom";
 
+const priceOptions = ["$", "$$", "$$$", "$$$$"];
+
+const vibeOptions = [
+  "Quiet", "Romantic", "Aesthetic", "Lively", "Cozy", "Group-Friendly", "Study-Friendly", "Date Night", "Local", "Fun"
+];
+
+const sentimentOptions = [
+  { label: "Non-spicy", emoji: "🌿" },
+  { label: "Spicy", emoji: "🌶️" },
+  { label: "Sweet", emoji: "🍰" },
+  { label: "Authentic", emoji: "✨" },
+  { label: "Instagrammable", emoji: "📸" },
+  { label: "Budget-friendly", emoji: "💰" },
+];
+
 const DiscoverPage = () => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedPrices, setSelectedPrices] = useState<string[]>([]);
+  const [selectedVibes, setSelectedVibes] = useState<string[]>([]);
+  const [selectedSentiments, setSelectedSentiments] = useState<string[]>([]);
   const navigate = useNavigate();
 
-  const filtered = selectedCategory === "All"
-    ? restaurants
-    : restaurants.filter(r => r.category === selectedCategory);
+  const toggleArray = (arr: string[], item: string) =>
+    arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item];
+
+  const activeFilterCount = selectedPrices.length + selectedVibes.length + selectedSentiments.length;
+
+  const filtered = useMemo(() => {
+    let result = restaurants;
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(r =>
+        r.name.toLowerCase().includes(q) ||
+        r.category.toLowerCase().includes(q) ||
+        r.vibes.some(v => v.toLowerCase().includes(q)) ||
+        r.address.toLowerCase().includes(q)
+      );
+    }
+
+    if (selectedCategory !== "All") {
+      result = result.filter(r => r.category === selectedCategory);
+    }
+
+    if (selectedPrices.length > 0) {
+      result = result.filter(r => selectedPrices.includes(r.priceRange));
+    }
+
+    if (selectedVibes.length > 0) {
+      result = result.filter(r =>
+        r.vibes.some(v => selectedVibes.some(sv => v.toLowerCase().includes(sv.toLowerCase())))
+      );
+    }
+
+    if (selectedSentiments.length > 0) {
+      result = result.filter(r =>
+        r.friendFeedback.some(fb =>
+          fb.vibes.some(v => selectedSentiments.some(s => v.toLowerCase().includes(s.toLowerCase())))
+        )
+      );
+    }
+
+    if (selectedMood) {
+      const moodVibeMap: Record<string, string[]> = {
+        study: ["quiet", "study-friendly", "café"],
+        date: ["romantic", "date night", "aesthetic", "cozy"],
+        group: ["group-friendly", "lively", "fun"],
+        chill: ["quiet", "cozy", "aesthetic"],
+        alone: ["quiet", "cozy", "study-friendly"],
+      };
+      const matchVibes = moodVibeMap[selectedMood] || [];
+      if (matchVibes.length > 0) {
+        result = result.filter(r =>
+          r.vibes.some(v => matchVibes.some(mv => v.toLowerCase().includes(mv)))
+        );
+      }
+    }
+
+    return result;
+  }, [searchQuery, selectedCategory, selectedPrices, selectedVibes, selectedSentiments, selectedMood]);
+
+  const clearFilters = () => {
+    setSelectedPrices([]);
+    setSelectedVibes([]);
+    setSelectedSentiments([]);
+  };
 
   return (
     <div className="min-h-screen safe-bottom pb-4">
@@ -39,19 +120,137 @@ const DiscoverPage = () => {
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search restaurants, vibes..."
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")}>
+                <X className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+            )}
             <MapPin className="h-4 w-4 text-primary" />
           </div>
-          <button className="flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-muted">
-            <SlidersHorizontal className="h-4 w-4 text-foreground" />
-          </button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowFilters(!showFilters)}
+            className={`relative flex h-[42px] w-[42px] items-center justify-center rounded-xl transition-colors ${
+              showFilters || activeFilterCount > 0 ? "bg-primary text-primary-foreground" : "bg-muted"
+            }`}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-secondary-foreground">
+                {activeFilterCount}
+              </span>
+            )}
+          </motion.button>
         </div>
       </div>
 
+      {/* Filter Panel */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden border-b border-border"
+          >
+            <div className="px-5 pb-4 space-y-4">
+              {/* Price Filter */}
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <DollarSign className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-xs font-semibold text-muted-foreground">Price Range</span>
+                </div>
+                <div className="flex gap-2">
+                  {priceOptions.map((price) => (
+                    <motion.button
+                      key={price}
+                      whileTap={{ scale: 0.92 }}
+                      onClick={() => setSelectedPrices(toggleArray(selectedPrices, price))}
+                      className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
+                        selectedPrices.includes(price)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {price}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Vibe Filter */}
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Heart className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-xs font-semibold text-muted-foreground">Vibe</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {vibeOptions.map((vibe) => (
+                    <motion.button
+                      key={vibe}
+                      whileTap={{ scale: 0.92 }}
+                      onClick={() => setSelectedVibes(toggleArray(selectedVibes, vibe))}
+                      className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition-all ${
+                        selectedVibes.includes(vibe)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {vibe}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sentiment Filter */}
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Smile className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-xs font-semibold text-muted-foreground">Sentiment</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {sentimentOptions.map((s) => (
+                    <motion.button
+                      key={s.label}
+                      whileTap={{ scale: 0.92 }}
+                      onClick={() => setSelectedSentiments(toggleArray(selectedSentiments, s.label))}
+                      className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-medium transition-all ${
+                        selectedSentiments.includes(s.label)
+                          ? "bg-secondary text-secondary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      <span>{s.emoji}</span>
+                      {s.label}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Clear Filters */}
+              {activeFilterCount > 0 && (
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  onClick={clearFilters}
+                  className="text-xs font-medium text-destructive"
+                >
+                  Clear all filters
+                </motion.button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Mood Selector */}
-      <div className="px-5">
+      <div className="px-5 mt-1">
         <h2 className="text-sm font-semibold text-muted-foreground mb-2.5">What's your vibe?</h2>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {moods.map((mood) => (
@@ -109,6 +308,15 @@ const DiscoverPage = () => {
         </div>
       </div>
 
+      {/* Results Count */}
+      {(activeFilterCount > 0 || searchQuery || selectedMood) && (
+        <div className="px-5 mt-3">
+          <p className="text-xs text-muted-foreground">
+            {filtered.length} restaurant{filtered.length !== 1 ? "s" : ""} found
+          </p>
+        </div>
+      )}
+
       {/* Trending Now */}
       <div className="mt-5">
         <div className="flex items-center justify-between px-5 mb-3">
@@ -134,18 +342,28 @@ const DiscoverPage = () => {
       {/* Near You */}
       <div className="mt-5 px-5">
         <h2 className="font-display text-base font-semibold mb-3">Near You 📍</h2>
-        <div className="flex flex-col gap-3">
-          {filtered.slice(0, 4).map((r, i) => (
-            <motion.div
-              key={r.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <RestaurantCard restaurant={r} variant="horizontal" />
-            </motion.div>
-          ))}
-        </div>
+        {filtered.length === 0 ? (
+          <div className="py-10 text-center">
+            <p className="text-3xl mb-2">🍽️</p>
+            <p className="text-sm text-muted-foreground">No restaurants match your filters</p>
+            <button onClick={clearFilters} className="mt-2 text-xs font-medium text-primary">
+              Clear filters
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {filtered.slice(0, 4).map((r, i) => (
+              <motion.div
+                key={r.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <RestaurantCard restaurant={r} variant="horizontal" />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
