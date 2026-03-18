@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const recentEats = [
   { name: "Saigon BBQ House", time: "Today, 2:30 PM", amount: 350000, tag: "CHEAT MEAL", emoji: "🍖", color: "bg-secondary/15 text-secondary" },
   { name: "The Green Patio", time: "Yesterday, 9:15 AM", amount: 55000, tag: "DAILY", emoji: "☕", color: "bg-primary/15 text-primary" },
-  { name: "Gelato Paradiso", time: "Mar 15, 4:00 PM", amount: 120000, tag: "DESSERT", emoji: "🍰", color: "bg-pink-100 text-pink-600" },
+  { name: "Gelato Paradiso", time: "Mar 15, 4:00 PM", amount: 120000, tag: "DESSERT", emoji: "🍰", color: "bg-accent text-accent-foreground" },
   { name: "Phở Thìn Legacy", time: "Mar 14, 11:20 AM", amount: 55000, tag: "DAILY", emoji: "🍜", color: "bg-primary/15 text-primary" },
 ];
 
