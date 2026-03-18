@@ -12,6 +12,7 @@ import CheckInPage from "@/pages/CheckInPage";
 import HeatMapPage from "@/pages/TrendingPage";
 import ProfilePage from "@/pages/ProfilePage";
 import BudgetPage from "@/pages/BudgetPage";
+import AddBudgetPage from "@/pages/AddBudgetPage";
 import UserProfilePage from "@/pages/UserProfilePage";
 import RestaurantDetailPage from "@/pages/RestaurantDetailPage";
 import SpinPage from "@/pages/SpinPage";
