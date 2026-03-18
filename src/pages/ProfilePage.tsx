@@ -12,6 +12,7 @@ const weekDays = {
 
 const ProfilePage = () => {
   const { lang, setLang, t } = useLanguage();
+  const navigate = useNavigate();
   const budgetPercent = Math.round((userProfile.monthlySpent / userProfile.monthlyBudget) * 100);
   const favRestaurants = restaurants.filter((r) => userProfile.favoriteRestaurants.includes(r.id));
 
