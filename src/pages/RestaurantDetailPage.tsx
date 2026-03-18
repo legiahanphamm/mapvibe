@@ -192,7 +192,7 @@ const RestaurantDetailPage = () => {
       </div>
 
       {showBookingSheet && (
-        <div className="fixed inset-0 z-50 flex items-end">
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
           <button
             aria-label="Close"
             className="absolute inset-0 bg-black/40"
@@ -206,7 +206,7 @@ const RestaurantDetailPage = () => {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 260, damping: 28 }}
-            className="relative w-full rounded-t-3xl bg-card p-5 pb-7 shadow-elevated"
+            className="relative w-full max-w-lg rounded-t-3xl bg-card p-5 pb-7 shadow-elevated"
           >
             <div className="mb-4 flex items-center justify-between">
               <div>

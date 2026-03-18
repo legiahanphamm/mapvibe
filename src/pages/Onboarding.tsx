@@ -233,10 +233,10 @@ const OnboardingPage = () => {
           className={`w-full flex items-center justify-center gap-2 rounded-2xl py-4 font-semibold text-sm transition-all ${
             selected.length > 0
               ? "gradient-warm text-primary-foreground shadow-elevated"
-              : "bg-secondary text-muted-foreground"
+              : "bg-secondary text-white"
           }`}
         >
-          {currentStep === steps.length - 1 ? t("onboarding.finish") : t("onboarding.continue")}
+          {currentStep === steps.length - 1 ? t("onboarding.finish") : t("Next")}
           <ArrowRight className="w-4 h-4" />
         </motion.button>
       </div>

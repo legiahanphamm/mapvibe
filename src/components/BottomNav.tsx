@@ -15,7 +15,11 @@ const BottomNav = () => {
     { path: "/profile", icon: User, labelKey: "nav.profile" },
   ];
 
-  if (location.pathname.startsWith("/restaurant/") || location.pathname === "/onboarding") return null;
+  if (
+    location.pathname.startsWith("/restaurant/") ||
+    location.pathname === "/onboarding" ||
+    location.pathname === "/login"
+  ) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border">

@@ -618,9 +618,9 @@ const AISearchPage = () => {
 
       {/* Input */}
       {aiMode !== "group" && (
-        <div className="fixed bottom-[5.5rem] left-0 right-0 px-5 pb-2">
+        <div className="fixed bottom-[5.5rem] left-1/2 z-40 w-full max-w-lg -translate-x-1/2 px-5 pb-2">
           {activeQuickFilters.length > 0 && (
-            <div className="flex gap-1 mb-2 flex-wrap">
+            <div className="mb-2 flex flex-wrap gap-1">
               {activeQuickFilters.map(f => (
                 <span key={f} className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary font-medium">{f}</span>
               ))}
