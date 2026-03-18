@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { Settings, Flame, Heart, Globe } from "lucide-react";
+import { Settings, Flame, Heart, Globe, ChevronRight } from "lucide-react";
 import { userProfile, restaurants } from "@/data/mockData";
 import { BarChart, Bar, XAxis, ResponsiveContainer } from "recharts";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
 
 const weekDays = {
   en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
