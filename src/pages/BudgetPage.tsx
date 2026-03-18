@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Settings, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Settings, AlertTriangle, Plus } from "lucide-react";
 import { userProfile } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
