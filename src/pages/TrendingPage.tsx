@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Users, Navigation, Flame } from "lucide-react";
+import { Search, Navigation, Sparkles } from "lucide-react";
 import { restaurants, userProfile } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const MAP_CENTER = { lat: 10.775, lng: 106.698 };
 
 type TimeFilter = "today" | "week" | "all";
 
@@ -14,6 +12,7 @@ const HeatMapPage = () => {
   const { t } = useLanguage();
   const [selectedPin, setSelectedPin] = useState<string | null>(null);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("today");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const timeFilters: { id: TimeFilter; labelKey: string }[] = [
     { id: "today", labelKey: "heatmap.today" },
@@ -27,7 +26,6 @@ const HeatMapPage = () => {
     ? restaurants.filter((_, i) => [0, 1, 2, 3, 5, 7].includes(i))
     : restaurants;
 
-  const sorted = [...filteredRestaurants].sort((a, b) => b.checkins - a.checkins);
   const selectedRestaurant = filteredRestaurants.find((r) => r.id === selectedPin);
 
   const toPosition = (lat: number, lng: number) => ({
@@ -35,159 +33,168 @@ const HeatMapPage = () => {
     y: ((10.795 - lat) / 0.050) * 100,
   });
 
-  const getHeatSize = (checkins: number) => checkins > 600 ? "h-16 w-16" : checkins > 300 ? "h-12 w-12" : "h-9 w-9";
-  const getHeatOpacity = (checkins: number) => checkins > 600 ? 0.6 : checkins > 300 ? 0.45 : 0.3;
-
   return (
-    <div className="min-h-screen safe-bottom">
-      <div className="absolute top-0 left-0 right-0 z-20 px-5 pt-14 pb-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-display font-bold flex items-center gap-2">
-              <Flame className="h-5 w-5 text-secondary" /> {t("heatmap.title")}
-            </h1>
-            <p className="text-xs text-muted-foreground">{t("heatmap.subtitle")}</p>
+    <div className="min-h-screen safe-bottom relative">
+      {/* Map area - full height with muted tones */}
+      <div className="relative w-full h-screen bg-accent/30 overflow-hidden">
+        {/* Simulated map texture */}
+        <div className="absolute inset-0">
+          {/* Water features */}
+          <div className="absolute top-[15%] right-0 w-[35%] h-[25%] bg-primary/5 rounded-l-[60px]" />
+          <div className="absolute bottom-[25%] left-[10%] w-[40%] h-[20%] bg-primary/8 rounded-[40px]" />
+          {/* Parks */}
+          <div className="absolute top-[40%] right-[20%] w-[25%] h-[15%] bg-accent/60 rounded-[30px]" />
+          {/* Roads */}
+          <div className="absolute top-0 bottom-0 left-[30%] w-[2px] bg-foreground/[0.06]" />
+          <div className="absolute top-0 bottom-0 left-[55%] w-[2px] bg-foreground/[0.06]" />
+          <div className="absolute top-0 bottom-0 left-[75%] w-[1.5px] bg-foreground/[0.06]" />
+          <div className="absolute left-0 right-0 top-[35%] h-[3px] bg-foreground/[0.08]" />
+          <div className="absolute left-0 right-0 top-[60%] h-[2px] bg-foreground/[0.06]" />
+          <div className="absolute left-0 right-0 top-[80%] h-[2px] bg-foreground/[0.05]" />
+          {/* District labels */}
+          <span className="absolute top-[22%] left-[8%] text-[9px] text-muted-foreground/40 font-medium tracking-wider uppercase">P. Bình An</span>
+          <span className="absolute top-[50%] right-[8%] text-[9px] text-muted-foreground/40 font-medium tracking-wider uppercase">P. Long</span>
+          <span className="absolute bottom-[30%] left-[15%] text-[9px] text-muted-foreground/40 font-medium tracking-wider uppercase">P. Tân Phú</span>
+          <span className="absolute bottom-[15%] right-[25%] text-[9px] text-muted-foreground/40 font-medium tracking-wider uppercase">P. Long Thạnh Mỹ</span>
+        </div>
+
+        {/* Time filter - top */}
+        <div className="absolute top-14 left-0 right-0 z-20 px-5">
+          <div className="flex gap-1.5 rounded-full bg-card/90 backdrop-blur-sm p-1 shadow-card w-fit mx-auto">
+            {timeFilters.map((tf) => (
+              <button
+                key={tf.id}
+                onClick={() => { setTimeFilter(tf.id); setSelectedPin(null); }}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
+                  timeFilter === tf.id ? "gradient-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t(tf.labelKey)}
+              </button>
+            ))}
           </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-card/90 backdrop-blur-sm px-3 py-1.5 shadow-card">
-            <Navigation className="h-3 w-3 text-primary" />
-            <span className="text-xs font-medium">District 1</span>
+        </div>
+
+        {/* Profile avatar - top right */}
+        <div className="absolute top-14 right-5 z-20">
+          <div className="relative">
+            <img src={userProfile.avatar} alt="" className="h-10 w-10 rounded-full object-cover ring-2 ring-card shadow-elevated" />
+            <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive border-2 border-card flex items-center justify-center">
+              <span className="text-[8px] text-destructive-foreground font-bold">3</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="absolute top-[7rem] left-0 right-0 z-20 px-5">
-        <div className="flex gap-1.5 rounded-full bg-card/90 backdrop-blur-sm p-1 shadow-card w-fit mx-auto">
-          {timeFilters.map((tf) => (
-            <button
-              key={tf.id}
-              onClick={() => { setTimeFilter(tf.id); setSelectedPin(null); }}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
-                timeFilter === tf.id ? "gradient-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t(tf.labelKey)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="relative w-full h-[65vh] bg-muted overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.07]">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={`h-${i}`} className="absolute left-0 right-0 border-t border-foreground" style={{ top: `${i * 8.5}%` }} />
-          ))}
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={`v-${i}`} className="absolute top-0 bottom-0 border-l border-foreground" style={{ left: `${i * 14}%` }} />
-          ))}
-        </div>
-
-        <div className="absolute top-[30%] left-0 right-0 h-[3px] bg-foreground/10 rounded-full" />
-        <div className="absolute top-[55%] left-0 right-0 h-[2px] bg-foreground/8 rounded-full" />
-        <div className="absolute left-[40%] top-0 bottom-0 w-[3px] bg-foreground/10 rounded-full" />
-        <div className="absolute left-[65%] top-0 bottom-0 w-[2px] bg-foreground/8 rounded-full" />
-
-        <span className="absolute top-[28%] left-[5%] text-[9px] text-muted-foreground/60 font-medium">Nguyen Hue</span>
-        <span className="absolute top-[53%] left-[10%] text-[9px] text-muted-foreground/60 font-medium">Le Loi</span>
-        <span className="absolute top-[10%] left-[38%] text-[9px] text-muted-foreground/60 font-medium rotate-90 origin-left">Hai Ba Trung</span>
-
+        {/* Food photo pins */}
         {filteredRestaurants.map((r) => {
           const pos = toPosition(r.lat, r.lng);
           const isSelected = selectedPin === r.id;
-          const heatSize = getHeatSize(r.checkins);
+          const hasFriends = r.friendsVisited.length > 0;
+
           return (
-            <div key={r.id} className="absolute" style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: "translate(-50%, -50%)" }}>
-              <motion.div
-                animate={{ scale: [1, 1.3, 1], opacity: [getHeatOpacity(r.checkins), getHeatOpacity(r.checkins) * 0.5, getHeatOpacity(r.checkins)] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ${heatSize}`}
-                style={{ background: `radial-gradient(circle, hsl(28, 95%, 62%), hsl(0, 84%, 60%) 60%, transparent 100%)` }}
-              />
+            <div key={r.id} className="absolute z-10" style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: "translate(-50%, -50%)" }}>
               <motion.button
                 whileTap={{ scale: 0.85 }}
                 onClick={() => setSelectedPin(isSelected ? null : r.id)}
-                className={`relative z-10 flex items-center justify-center rounded-full shadow-elevated transition-all ${
-                  isSelected ? "h-11 w-11 gradient-primary ring-2 ring-primary/30" : "h-8 w-8 bg-card border border-border"
-                }`}
+                className="relative"
               >
-                {r.friendsVisited.length > 0 ? (
-                  <span className="text-xs font-bold">{r.friendsVisited.length}</span>
-                ) : (
-                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                {/* Pin shape with food photo */}
+                <div className={`relative rounded-full overflow-hidden shadow-elevated transition-all ${
+                  isSelected ? "h-16 w-16 ring-3 ring-primary" : "h-11 w-11"
+                }`}>
+                  <img src={r.image} alt={r.name} className="h-full w-full object-cover" />
+                </div>
+                {/* Pin tail */}
+                <div className={`mx-auto w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-transparent ${
+                  isSelected ? "border-t-primary" : "border-t-card"
+                }`} />
+
+                {/* Friends avatar cluster */}
+                {hasFriends && !isSelected && (
+                  <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground border-2 border-card">
+                    {r.friendsVisited.length}
+                  </div>
+                )}
+
+                {/* Friend faces on selected */}
+                {isSelected && r.friendFeedback.length > 0 && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-2 -right-4 flex -space-x-1.5">
+                    {r.friendFeedback.slice(0, 3).map((f) => (
+                      <img key={f.name} src={f.avatar} alt={f.name} className="h-5 w-5 rounded-full border-2 border-card object-cover" />
+                    ))}
+                  </motion.div>
                 )}
               </motion.button>
-              {isSelected && r.friendFeedback.length > 0 && (
-                <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute -top-2 -right-6 flex -space-x-1.5">
-                  {r.friendFeedback.slice(0, 3).map((f) => (
-                    <img key={f.name} src={f.avatar} alt={f.name} className="h-5 w-5 rounded-full border-2 border-card object-cover" />
-                  ))}
-                </motion.div>
-              )}
             </div>
           );
         })}
 
+        {/* User location dot */}
         <div className="absolute z-10" style={{ left: "50%", top: "45%", transform: "translate(-50%, -50%)" }}>
           <motion.div animate={{ scale: [1, 1.6, 1] }} transition={{ duration: 2, repeat: Infinity }} className="absolute -inset-3 rounded-full bg-primary/20" />
           <div className="relative h-4 w-4 rounded-full gradient-primary border-2 border-card shadow-glow" />
         </div>
+
+        {/* Some special markers */}
+        <div className="absolute bottom-[40%] left-[8%] z-10">
+          <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <span className="text-xs">🍷</span>
+          </div>
+        </div>
+        <div className="absolute bottom-[42%] left-[12%] z-10">
+          <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <span className="text-xs">🍷</span>
+          </div>
+        </div>
       </div>
 
-      <div className="relative z-10 -mt-6 rounded-t-3xl bg-card px-5 pt-5 pb-4 shadow-elevated">
-        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
-        <AnimatePresence mode="wait">
-          {selectedRestaurant ? (
-            <motion.div key={selectedRestaurant.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-              <div className="flex gap-3 cursor-pointer" onClick={() => navigate(`/restaurant/${selectedRestaurant.id}`)}>
-                <img src={selectedRestaurant.image} alt={selectedRestaurant.name} className="h-16 w-16 rounded-xl object-cover" />
-                <div className="flex-1">
-                  <h3 className="font-display text-sm font-semibold">{selectedRestaurant.name}</h3>
-                  <p className="text-xs text-muted-foreground">{selectedRestaurant.category} · {selectedRestaurant.distance}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="flex items-center gap-1 text-xs text-secondary font-medium">
-                      <Users className="h-3 w-3" /> {selectedRestaurant.checkins} {t("heatmap.checkins")}
-                    </span>
-                    <span className="text-xs text-muted-foreground">· {selectedRestaurant.friendsVisited.length} {t("heatmap.friends")}</span>
+      {/* Search bar floating at bottom */}
+      <div className="fixed bottom-20 left-0 right-0 z-30 px-5">
+        <div className="mx-auto max-w-lg">
+          {/* Selected restaurant card */}
+          <AnimatePresence>
+            {selectedRestaurant && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="mb-3 rounded-2xl bg-card shadow-elevated p-3 cursor-pointer"
+                onClick={() => navigate(`/restaurant/${selectedRestaurant.id}`)}
+              >
+                <div className="flex gap-3">
+                  <img src={selectedRestaurant.image} alt={selectedRestaurant.name} className="h-14 w-14 rounded-xl object-cover" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-display text-sm font-semibold truncate">{selectedRestaurant.name}</h3>
+                    <p className="text-xs text-muted-foreground">{selectedRestaurant.category} · {selectedRestaurant.distance}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex -space-x-1">
+                        {selectedRestaurant.friendFeedback.slice(0, 3).map((f) => (
+                          <img key={f.name} src={f.avatar} alt={f.name} className="h-4 w-4 rounded-full border border-card object-cover" />
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">{selectedRestaurant.friendsVisited.length} {t("heatmap.friends")}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <Navigation className="h-4 w-4 text-primary" />
                   </div>
                 </div>
-              </div>
-              {selectedRestaurant.friendFeedback.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {selectedRestaurant.friendFeedback.slice(0, 2).map((f) => (
-                    <div key={f.name} className="flex items-start gap-2 rounded-xl bg-muted p-2.5">
-                      <img src={f.avatar} alt={f.name} className="h-7 w-7 rounded-full object-cover mt-0.5" />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-semibold">{f.name}</span>
-                          <span className="text-[10px] text-muted-foreground">{f.timestamp}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{f.comment}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          ) : (
-            <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <h2 className="font-display text-sm font-semibold mb-3 flex items-center gap-1.5">
-                <Flame className="h-4 w-4 text-secondary" /> {t("heatmap.hottest")}
-              </h2>
-              <div className="space-y-2.5">
-                {sorted.slice(0, 4).map((r, i) => (
-                  <motion.div key={r.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
-                    className="flex items-center gap-3 cursor-pointer" onClick={() => setSelectedPin(r.id)}>
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full gradient-warm text-xs font-bold text-secondary-foreground">{i + 1}</span>
-                    <img src={r.image} alt={r.name} className="h-10 w-10 rounded-lg object-cover" />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-semibold truncate">{r.name}</h4>
-                      <p className="text-xs text-muted-foreground">{r.friendsVisited.length} {t("heatmap.friends")} · {r.checkins} {t("heatmap.checkins")}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Search input */}
+          <div className="flex items-center gap-2 rounded-full bg-card/95 backdrop-blur-sm px-4 py-3 shadow-elevated">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("heatmap.searchPlaceholder")}
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

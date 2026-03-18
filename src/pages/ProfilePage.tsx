@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { Settings, Flame, Heart, Globe } from "lucide-react";
+import { Settings, Flame, Heart, Globe, ChevronRight } from "lucide-react";
 import { userProfile, restaurants } from "@/data/mockData";
 import { BarChart, Bar, XAxis, ResponsiveContainer } from "recharts";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
 
 const weekDays = {
   en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -11,6 +12,7 @@ const weekDays = {
 
 const ProfilePage = () => {
   const { lang, setLang, t } = useLanguage();
+  const navigate = useNavigate();
   const budgetPercent = Math.round((userProfile.monthlySpent / userProfile.monthlyBudget) * 100);
   const favRestaurants = restaurants.filter((r) => userProfile.favoriteRestaurants.includes(r.id));
 
@@ -55,15 +57,16 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* User Card */}
+      {/* User Card - clickable */}
       <div className="px-5">
-        <div className="rounded-2xl gradient-card shadow-card p-5">
+        <div className="rounded-2xl gradient-card shadow-card p-5 cursor-pointer" onClick={() => navigate("/user-profile")}>
           <div className="flex items-center gap-4">
             <img src={userProfile.avatar} alt={userProfile.name} className="h-16 w-16 rounded-full object-cover ring-2 ring-primary ring-offset-2 ring-offset-background" />
-            <div>
+            <div className="flex-1">
               <h2 className="font-display text-lg font-bold">{userProfile.name}</h2>
               <p className="text-sm text-muted-foreground">{userProfile.username}</p>
             </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </div>
 
           <div className="mt-4 grid grid-cols-3 gap-3">
@@ -110,13 +113,16 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Budget */}
+      {/* Budget - clickable */}
       <div className="mt-5 px-5">
         <h2 className="font-display text-sm font-semibold mb-2">{t("profile.monthlyBudget")}</h2>
-        <div className="rounded-2xl bg-card shadow-card p-4">
+        <div className="rounded-2xl bg-card shadow-card p-4 cursor-pointer" onClick={() => navigate("/budget")}>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">{(userProfile.monthlySpent / 1000).toFixed(0)}k / {(userProfile.monthlyBudget / 1000).toFixed(0)}k VND</span>
-            <span className="text-xs text-muted-foreground">{budgetPercent}%</span>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-muted-foreground">{budgetPercent}%</span>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
           </div>
           <div className="h-2.5 rounded-full bg-muted overflow-hidden">
             <motion.div

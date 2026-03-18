@@ -11,6 +11,8 @@ import AISearchPage from "@/pages/AISearchPage";
 import CheckInPage from "@/pages/CheckInPage";
 import HeatMapPage from "@/pages/TrendingPage";
 import ProfilePage from "@/pages/ProfilePage";
+import BudgetPage from "@/pages/BudgetPage";
+import UserProfilePage from "@/pages/UserProfilePage";
 import RestaurantDetailPage from "@/pages/RestaurantDetailPage";
 import SpinPage from "@/pages/SpinPage";
 import NotFound from "./pages/NotFound";
@@ -32,6 +34,8 @@ const App = () => (
               <Route path="/checkin" element={<CheckInPage />} />
               <Route path="/trending" element={<HeatMapPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/budget" element={<BudgetPage />} />
+              <Route path="/user-profile" element={<UserProfilePage />} />
               <Route path="/restaurant/:id" element={<RestaurantDetailPage />} />
               <Route path="/spin" element={<SpinPage />} />
               <Route path="*" element={<NotFound />} />

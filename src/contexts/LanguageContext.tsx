@@ -119,6 +119,30 @@ const translations: Record<string, Record<Language, string>> = {
   "mood.chill": { en: "Chill", vi: "Chill" },
   "mood.alone": { en: "Alone", vi: "Một mình" },
 
+  // Heat Map
+  "heatmap.searchPlaceholder": { en: "Where should we eat?", vi: "Hôm nay ăn gì?" },
+
+  // Budget
+  "budget.title": { en: "Food Budget", vi: "Ngân sách ăn uống" },
+  "budget.spent": { en: "Spent", vi: "Đã chi" },
+  "budget.alert": { en: "Spending alert: Near limit", vi: "Cảnh báo: Gần giới hạn" },
+  "budget.monthlyProgress": { en: "Monthly Progress", vi: "Tiến độ tháng" },
+  "budget.daysLeft": { en: "Days Left", vi: "Ngày còn lại" },
+  "budget.remaining": { en: "remaining", vi: "còn lại" },
+  "budget.days": { en: "Days", vi: "Ngày" },
+  "budget.recentEats": { en: "Recent Eats", vi: "Gần đây" },
+  "budget.viewAll": { en: "View All", vi: "Xem tất cả" },
+
+  // User Profile
+  "userProfile.places": { en: "Places", vi: "Địa điểm" },
+  "userProfile.badges": { en: "Badges", vi: "Huy hiệu" },
+  "userProfile.gourmetExplorer": { en: "Gourmet Explorer", vi: "Nhà thám hiểm ẩm thực" },
+  "userProfile.toLevel": { en: "to Level", vi: "đến Level" },
+  "userProfile.hallOfFame": { en: "Hall of Fame", vi: "Vinh danh" },
+  "userProfile.viewAll": { en: "View All", vi: "Xem tất cả" },
+  "userProfile.history": { en: "History", vi: "Lịch sử" },
+  "userProfile.favSpots": { en: "Fav Spots", vi: "Yêu thích" },
+
   // Common
   "common.open": { en: "Open", vi: "Mở cửa" },
   "common.closed": { en: "Closed", vi: "Đóng cửa" },
