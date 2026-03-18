@@ -146,6 +146,5 @@ const BudgetPage = () => {
     </div>
   );
 };
-};
 
 export default BudgetPage;
