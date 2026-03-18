@@ -16,6 +16,17 @@ import UserProfilePage from "@/pages/UserProfilePage";
 import RestaurantDetailPage from "@/pages/RestaurantDetailPage";
 import SpinPage from "@/pages/SpinPage";
 import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <LanguageProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <div className="mx-auto max-w-lg min-h-screen bg-background relative">
             <Routes>
               <Route path="/" element={<DiscoverPage />} />
               <Route path="/ai" element={<AISearchPage />} />
