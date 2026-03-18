@@ -43,7 +43,7 @@ const HeatMapPage = () => {
           <div className="absolute top-[15%] right-0 w-[35%] h-[25%] bg-primary/5 rounded-l-[60px]" />
           <div className="absolute bottom-[25%] left-[10%] w-[40%] h-[20%] bg-primary/8 rounded-[40px]" />
           {/* Parks */}
-          <div className="absolute top-[40%] right-[20%] w-[25%] h-[15%] bg-green-100/40 rounded-[30px]" />
+          <div className="absolute top-[40%] right-[20%] w-[25%] h-[15%] bg-accent/60 rounded-[30px]" />
           {/* Roads */}
           <div className="absolute top-0 bottom-0 left-[30%] w-[2px] bg-foreground/[0.06]" />
           <div className="absolute top-0 bottom-0 left-[55%] w-[2px] bg-foreground/[0.06]" />
