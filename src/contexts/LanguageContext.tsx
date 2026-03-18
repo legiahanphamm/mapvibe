@@ -143,6 +143,25 @@ const translations: Record<string, Record<Language, string>> = {
   "userProfile.history": { en: "History", vi: "Lịch sử" },
   "userProfile.favSpots": { en: "Fav Spots", vi: "Yêu thích" },
 
+  // Check-in modes
+  "checkin.modeRestaurant": { en: "RESTAURANT", vi: "NHÀ HÀNG" },
+  "checkin.modeCooking": { en: "HOME COOKING", vi: "NẤU ĂN" },
+  "checkin.modeVibe": { en: "VIBE ONLY", vi: "KHÔNG GIAN" },
+  "checkin.tagIngredients": { en: "Tag Ingredients", vi: "Gắn nguyên liệu" },
+  "checkin.shareRecipe": { en: "Share Recipe", vi: "Chia sẻ công thức" },
+
+  // Add Budget
+  "addBudget.title": { en: "Add Expense", vi: "Thêm chi tiêu" },
+  "addBudget.subtitle": { en: "Log your meal spending", vi: "Ghi lại chi tiêu bữa ăn" },
+  "addBudget.amount": { en: "Amount", vi: "Số tiền" },
+  "addBudget.category": { en: "Category", vi: "Danh mục" },
+  "addBudget.where": { en: "Where did you eat?", vi: "Bạn ăn ở đâu?" },
+  "addBudget.note": { en: "Note", vi: "Ghi chú" },
+  "addBudget.notePlaceholder": { en: "What did you have? 🍜", vi: "Bạn ăn gì? 🍜" },
+  "addBudget.save": { en: "Save Expense", vi: "Lưu chi tiêu" },
+  "addBudget.saved": { en: "Expense Saved! ✅", vi: "Đã lưu! ✅" },
+  "budget.addExpense": { en: "Add Expense", vi: "Thêm chi tiêu" },
+
   // Common
   "common.open": { en: "Open", vi: "Mở cửa" },
   "common.closed": { en: "Closed", vi: "Đóng cửa" },

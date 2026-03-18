@@ -36,6 +36,7 @@ const App = () => (
               <Route path="/trending" element={<HeatMapPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/budget" element={<BudgetPage />} />
+              <Route path="/add-budget" element={<AddBudgetPage />} />
               <Route path="/user-profile" element={<UserProfilePage />} />
               <Route path="/restaurant/:id" element={<RestaurantDetailPage />} />
               <Route path="/spin" element={<SpinPage />} />
