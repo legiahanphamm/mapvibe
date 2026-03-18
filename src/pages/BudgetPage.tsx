@@ -133,9 +133,19 @@ const BudgetPage = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* Add Expense FAB */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate("/add-budget")}
+          className="mt-5 w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold gradient-primary text-primary-foreground shadow-glow"
+        >
+          <Plus className="h-4 w-4" /> {t("budget.addExpense")}
+        </motion.button>
       </div>
     </div>
   );
+};
 };
 
 export default BudgetPage;
