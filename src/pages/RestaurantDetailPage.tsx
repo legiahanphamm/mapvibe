@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, MapPin, Clock, Users, Heart, Share2, CalendarCheck, MessageCircle, X, Check } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Clock, Users, Heart, Share2, CalendarCheck, MessageCircle, X, Check, Navigation } from "lucide-react";
 import { restaurants } from "@/data/mockData";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -41,6 +41,11 @@ const RestaurantDetailPage = () => {
       setShowBookingSheet(false);
       setBookingSubmitted(false);
     }, 1600);
+  };
+
+  const handleGetDirections = () => {
+    const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(restaurant.name)}/@${restaurant.lat},${restaurant.lng},15z`;
+    window.open(mapsUrl, '_blank');
   };
 
   if (!restaurant) {
@@ -98,18 +103,24 @@ const RestaurantDetailPage = () => {
             </h2>
             <div className="space-y-3">
               {restaurant.friendFeedback.map(feedback => (
-                <motion.div key={feedback.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-card p-4 shadow-card">
+                <motion.div key={feedback.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-card p-4 shadow-card overflow-hidden">
+                  {/* Review Image if available */}
+                  {feedback.reviewImage && (
+                    <img src={feedback.reviewImage} alt={`${feedback.name}'s review`} className="w-full h-32 object-cover rounded-lg mb-3" />
+                  )}
+                  
                   <div className="flex items-center gap-2.5">
-                    <img src={feedback.avatar} alt={feedback.name} className="h-9 w-9 rounded-full object-cover" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold">{feedback.name}</span>
-                        <span className="text-[10px] text-muted-foreground">{feedback.timestamp}</span>
+                    <img src={feedback.avatar} alt={feedback.name} className="h-9 w-9 rounded-full object-cover flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-sm font-semibold truncate">{feedback.name}</span>
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">{feedback.timestamp}</span>
                       </div>
                       <div className="flex items-center gap-1 mt-0.5">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star key={i} className={`h-3 w-3 ${i < Math.floor(feedback.rating) ? "fill-secondary text-secondary" : "text-border"}`} />
                         ))}
+                        <span className="text-[10px] text-muted-foreground ml-1">{feedback.rating}</span>
                       </div>
                     </div>
                   </div>
@@ -173,6 +184,11 @@ const RestaurantDetailPage = () => {
             {t("detail.bookTable")}
           </motion.button>
         </div>
+
+        <motion.button whileTap={{ scale: 0.97 }} onClick={handleGetDirections}
+          className="w-full mt-3 flex items-center justify-center gap-2 rounded-xl bg-secondary/10 py-3.5 text-sm font-semibold text-secondary hover:bg-secondary/20 transition-colors">
+          <Navigation className="h-4 w-4" />{t("nav.getDirections")}
+        </motion.button>
       </div>
 
       {showBookingSheet && (
@@ -194,8 +210,8 @@ const RestaurantDetailPage = () => {
           >
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h3 className="font-display text-base font-bold">Book a table</h3>
-                <p className="text-xs text-muted-foreground">Mock reservation flow for {restaurant.name}</p>
+                <h3 className="font-display text-base font-bold">{t("detail.bookTable")}</h3>
+                <p className="text-xs text-muted-foreground">{t("booking.reservationConfirmed")} {restaurant.name}</p>
               </div>
               <button
                 onClick={() => {
@@ -217,15 +233,15 @@ const RestaurantDetailPage = () => {
                 <div className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full gradient-primary">
                   <Check className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <p className="font-display text-sm font-semibold">Reservation Confirmed</p>
+                <p className="font-display text-sm font-semibold">{t("booking.reservationConfirmed")}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {selectedDate} at {selectedTime} for {guestCount} {guestCount === 1 ? "guest" : "guests"}
+                  {selectedDate} at {selectedTime} for {guestCount} {guestCount === 1 ? t("booking.guest") : t("booking.guests")}
                 </p>
               </motion.div>
             ) : (
               <div className="space-y-4">
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Date</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("booking.date")}</p>
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {dateOptions.map((date) => (
                       <button
@@ -244,7 +260,7 @@ const RestaurantDetailPage = () => {
                 </div>
 
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Time</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("booking.time")}</p>
                   <div className="grid grid-cols-4 gap-2">
                     {timeOptions.map((time) => (
                       <button
@@ -263,9 +279,9 @@ const RestaurantDetailPage = () => {
                 </div>
 
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Guests</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("booking.date")}</p>
                   <div className="flex items-center justify-between rounded-xl bg-muted px-3 py-2">
-                    <span className="text-sm font-medium">Party size</span>
+                    <span className="text-sm font-medium">{t("booking.partySize")}</span>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setGuestCount((prev) => Math.max(1, prev - 1))}
@@ -285,7 +301,7 @@ const RestaurantDetailPage = () => {
                 </div>
 
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Seating</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("booking.seating")}</p>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => setSeating("indoor")}
@@ -293,7 +309,7 @@ const RestaurantDetailPage = () => {
                         seating === "indoor" ? "gradient-primary text-primary-foreground" : "bg-muted"
                       }`}
                     >
-                      Indoor
+                      {t("booking.indoor")}
                     </button>
                     <button
                       onClick={() => setSeating("outdoor")}
@@ -301,19 +317,19 @@ const RestaurantDetailPage = () => {
                         seating === "outdoor" ? "gradient-primary text-primary-foreground" : "bg-muted"
                       }`}
                     >
-                      Outdoor
+                      {t("booking.outdoor")}
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Occasion</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("booking.occasion")}</p>
                   <select
                     value={occasion}
                     onChange={(e) => setOccasion(e.target.value as "none" | "birthday" | "date" | "business")}
                     className="w-full rounded-xl bg-muted px-3 py-2 text-sm outline-none"
                   >
-                    <option value="none">No occasion</option>
+                    <option value="none">{t("booking.occasion")}</option>
                     <option value="birthday">Birthday</option>
                     <option value="date">Date night</option>
                     <option value="business">Business meal</option>
@@ -321,7 +337,7 @@ const RestaurantDetailPage = () => {
                 </div>
 
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Special request</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("booking.notes")}</p>
                   <textarea
                     value={bookingNote}
                     onChange={(e) => setBookingNote(e.target.value)}
@@ -331,7 +347,7 @@ const RestaurantDetailPage = () => {
                 </div>
 
                 <div className="rounded-xl bg-primary/10 px-3 py-2 text-xs text-foreground/80">
-                  Estimated spend: <span className="font-semibold">{estimatedSpend}k VND</span>
+                  {t("booking.estimatedSpend")}: <span className="font-semibold">{estimatedSpend}k VND</span>
                 </div>
 
                 <motion.button
@@ -342,7 +358,7 @@ const RestaurantDetailPage = () => {
                     canBook ? "gradient-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  Confirm reservation
+                  {t("booking.confirmBooking")}
                 </motion.button>
               </div>
             )}

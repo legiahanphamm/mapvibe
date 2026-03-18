@@ -16,6 +16,8 @@ import AddBudgetPage from "@/pages/AddBudgetPage";
 import UserProfilePage from "@/pages/UserProfilePage";
 import RestaurantDetailPage from "@/pages/RestaurantDetailPage";
 import SpinPage from "@/pages/SpinPage";
+import LoginPage from "@/pages/LoginPage";
+import OnboardingPage from "@/pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +31,8 @@ const App = () => (
         <BrowserRouter>
           <div className="mx-auto max-w-lg min-h-screen bg-background relative">
             <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/" element={<DiscoverPage />} />
               <Route path="/ai" element={<AISearchPage />} />
               <Route path="/feed" element={<FeedPage />} />

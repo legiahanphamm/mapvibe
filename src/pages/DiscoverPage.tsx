@@ -22,6 +22,13 @@ const sentimentOptions = [
   { label: "Budget-friendly", emoji: "💰" },
 ];
 
+const locationOptions = [
+  { id: "d1", labelKey: "discover.location.d1" },
+  { id: "thuduc", labelKey: "discover.location.thuduc" },
+  { id: "d3", labelKey: "discover.location.d3" },
+  { id: "bt", labelKey: "discover.location.bt" },
+];
+
 const DiscoverPage = () => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -30,6 +37,10 @@ const DiscoverPage = () => {
   const [selectedPrices, setSelectedPrices] = useState<string[]>([]);
   const [selectedVibes, setSelectedVibes] = useState<string[]>([]);
   const [selectedSentiments, setSelectedSentiments] = useState<string[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState("d1");
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationNotice, setLocationNotice] = useState<string | null>(null);
   const navigate = useNavigate();
   const { t } = useLanguage();
 
@@ -37,6 +48,45 @@ const DiscoverPage = () => {
     arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item];
 
   const activeFilterCount = selectedPrices.length + selectedVibes.length + selectedSentiments.length;
+  const selectedLocationLabel = t(locationOptions.find((location) => location.id === selectedLocation)?.labelKey || "discover.location.d1");
+
+  const requestLocationAccess = () => {
+    if (!navigator.geolocation) {
+      setLocationNotice("discover.locationNotSupported");
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationNotice(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        if (latitude > 10.79) {
+          setSelectedLocation("thuduc");
+        } else if (latitude > 10.78) {
+          setSelectedLocation("d3");
+        } else if (longitude > 106.71) {
+          setSelectedLocation("bt");
+        } else {
+          setSelectedLocation("d1");
+        }
+
+        setShowLocationPicker(false);
+        setIsLocating(false);
+      },
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationNotice("discover.locationDenied");
+        } else {
+          setLocationNotice("discover.locationFallback");
+        }
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  };
 
   const filtered = useMemo(() => {
     let result = restaurants;
@@ -74,13 +124,74 @@ const DiscoverPage = () => {
       <div className="px-5 pt-14 pb-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-muted-foreground">📍 District 1, HCMC</p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowLocationPicker((prev) => !prev)}
+                className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1"
+              >
+                <MapPin className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">{selectedLocationLabel}</span>
+              </button>
+              <button
+                onClick={() => setShowLocationPicker((prev) => !prev)}
+                className="text-[11px] font-semibold text-primary"
+              >
+                {t("discover.changeLocation")}
+              </button>
+            </div>
             <h1 className="text-2xl font-display font-bold mt-0.5">{t("discover.title")}</h1>
           </div>
-          <motion.div whileTap={{ scale: 0.9 }} onClick={() => navigate("/spin")} className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10">
-            <span className="text-lg">🎰</span>
-          </motion.div>
+          <div className="flex items-center gap-2">
+            <img src="/mapvibe-logo.svg" alt="MapVibe logo" className="h-10 w-10 rounded-full object-cover shadow-card" />
+            <motion.div whileTap={{ scale: 0.9 }} onClick={() => navigate("/spin")} className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10">
+              <span className="text-lg">🎰</span>
+            </motion.div>
+          </div>
         </div>
+
+        <AnimatePresence>
+          {showLocationPicker && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mt-3 rounded-2xl bg-card p-3 shadow-card"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold text-muted-foreground">{t("discover.currentLocation")}</p>
+                <button
+                  onClick={requestLocationAccess}
+                  disabled={isLocating}
+                  className="text-xs font-semibold text-primary disabled:opacity-60"
+                >
+                  {isLocating ? t("discover.detectingLocation") : t("discover.useMyLocation")}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {locationOptions.map((location) => (
+                  <button
+                    key={location.id}
+                    onClick={() => {
+                      setSelectedLocation(location.id);
+                      setShowLocationPicker(false);
+                      setLocationNotice(null);
+                    }}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                      selectedLocation === location.id
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {t(location.labelKey)}
+                  </button>
+                ))}
+              </div>
+              {locationNotice && (
+                <p className="mt-2 text-xs text-muted-foreground">{t(locationNotice)}</p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="mt-4 flex gap-2">
           <div className="flex flex-1 items-center gap-2 rounded-xl bg-muted px-3.5 py-2.5">
@@ -95,7 +206,9 @@ const DiscoverPage = () => {
             {searchQuery && (
               <button onClick={() => setSearchQuery("")}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
             )}
-            <MapPin className="h-4 w-4 text-primary" />
+            <button onClick={requestLocationAccess} disabled={isLocating}>
+              <MapPin className={`h-4 w-4 ${isLocating ? "text-muted-foreground" : "text-primary"}`} />
+            </button>
           </div>
           <motion.button
             whileTap={{ scale: 0.9 }}
