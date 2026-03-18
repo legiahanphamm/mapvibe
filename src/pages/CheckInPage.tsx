@@ -42,18 +42,18 @@ const CheckInPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white safe-bottom flex flex-col">
+    <div className="min-h-screen bg-white text-black safe-bottom flex flex-col">
       {/* Header */}
       <div className="px-5 pt-14 pb-3 flex items-center justify-between">
         <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10">
-          <ArrowLeft className="h-5 w-5 text-white" />
+          <ArrowLeft className="h-5 w-5 text-black" />
         </button>
         <div className="text-center">
           <h1 className="text-sm font-bold tracking-widest text-primary uppercase">{getModeTitle()}</h1>
-          <p className="text-[10px] text-white/50 tracking-wider mt-0.5">{getModeSubtitle()}</p>
+          <p className="text-[10px] text-black/50 tracking-wider mt-0.5">{getModeSubtitle()}</p>
         </div>
         <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10">
-          <MoreVertical className="h-5 w-5 text-white" />
+          <MoreVertical className="h-5 w-5 text-black" />
         </button>
       </div>
 
@@ -65,10 +65,10 @@ const CheckInPage = () => {
           className="relative w-full max-w-[320px] aspect-square rounded-3xl overflow-hidden border-2 border-primary/30"
         >
           {/* Corner brackets */}
-          <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-white/30 rounded-tl-lg z-10" />
-          <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-white/30 rounded-tr-lg z-10" />
-          <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-white/30 rounded-bl-lg z-10" />
-          <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-white/30 rounded-br-lg z-10" />
+          <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-black/30 rounded-tl-lg z-10" />
+          <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-black/30 rounded-tr-lg z-10" />
+          <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-black/30 rounded-bl-lg z-10" />
+          <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-black/30 rounded-br-lg z-10" />
 
           {photo ? (
             <>
@@ -99,9 +99,9 @@ const CheckInPage = () => {
           ) : (
             <div className="h-full w-full bg-white/5 flex flex-col items-center justify-center">
               <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-3">
-                <Camera className="h-7 w-7 text-white/40" />
+                <Camera className="h-7 w-7 text-black/40" />
               </div>
-              <p className="text-sm text-white/40">{t("checkin.tapToCapture")}</p>
+              <p className="text-sm text-black/40">{t("checkin.tapToCapture")}</p>
             </div>
           )}
         </motion.div>
@@ -120,7 +120,7 @@ const CheckInPage = () => {
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                   selectedReaction === r.id
                     ? "bg-primary text-primary-foreground"
-                    : "bg-white/10 text-white/60"
+                    : "bg-orange-100 text-black/60"
                 }`}
               >
                 {r.emoji} {r.label}
@@ -133,20 +133,20 @@ const CheckInPage = () => {
         <div className="flex gap-3 mt-5 w-full max-w-[320px]">
           {mode === "cooking" && (
             <>
-              <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-sm text-white/70">
+              <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-sm text-black/70">
                 <Tag className="h-4 w-4" /> {t("checkin.tagIngredients")}
               </button>
-              <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-sm text-white/70">
+              <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-sm text-black/70">
                 <BookOpen className="h-4 w-4" /> {t("checkin.shareRecipe")}
               </button>
             </>
           )}
           {mode === "restaurant" && (
             <>
-              <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-sm text-white/70">
+              <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-sm text-black/70">
                 <MapPin className="h-4 w-4" /> {t("checkin.addLocation")}
               </button>
-              <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-sm text-white/70">
+              <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-sm text-black/70">
                 <Users className="h-4 w-4" /> {t("checkin.tagFriends")}
               </button>
             </>
@@ -158,7 +158,7 @@ const CheckInPage = () => {
                   key={mood.id}
                   onClick={() => setSelectedMood(selectedMood === mood.id ? null : mood.id)}
                   className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-                    selectedMood === mood.id ? "bg-primary text-primary-foreground" : "bg-white/10 text-white/60"
+                    selectedMood === mood.id ? "bg-primary text-primary-foreground" : "bg-white/10 text-black/60"
                   }`}
                 >
                   {mood.emoji} {t(`mood.${mood.id}`)}
@@ -174,7 +174,7 @@ const CheckInPage = () => {
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder={t("checkin.addCaption")}
-            className="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white outline-none resize-none h-16 placeholder:text-white/30"
+            className="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-black outline-none resize-none h-16 placeholder:text-black/30"
           />
         </div>
       </div>
@@ -200,7 +200,7 @@ const CheckInPage = () => {
               className="flex flex-col items-center gap-1"
             >
               <span className={`text-[11px] font-bold tracking-wider transition-colors ${
-                mode === m.id ? "text-primary" : "text-white/40"
+                mode === m.id ? "text-primary" : "text-black/40"
               }`}>
                 {m.label}
               </span>

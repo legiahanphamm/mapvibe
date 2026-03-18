@@ -1,6 +1,7 @@
+import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, MapPin, Clock, Users, Heart, Share2, CalendarCheck, MessageCircle } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Clock, Users, Heart, Share2, CalendarCheck, MessageCircle, X, Check } from "lucide-react";
 import { restaurants } from "@/data/mockData";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -9,6 +10,38 @@ const RestaurantDetailPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const restaurant = restaurants.find((r) => r.id === id);
+  const [showBookingSheet, setShowBookingSheet] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("Today");
+  const [selectedTime, setSelectedTime] = useState("19:00");
+  const [guestCount, setGuestCount] = useState(2);
+  const [seating, setSeating] = useState<"indoor" | "outdoor">("indoor");
+  const [occasion, setOccasion] = useState<"none" | "birthday" | "date" | "business">("none");
+  const [bookingNote, setBookingNote] = useState("");
+  const [bookingSubmitted, setBookingSubmitted] = useState(false);
+
+  const dateOptions = ["Today", "Tomorrow", "Fri, Mar 20", "Sat, Mar 21"];
+  const timeOptions = ["17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
+
+  const canBook = guestCount > 0 && selectedDate.length > 0 && selectedTime.length > 0;
+  const estimatedSpend = useMemo(() => {
+    const perGuest = restaurant?.priceRange === "$$$$"
+      ? 500
+      : restaurant?.priceRange === "$$$"
+      ? 320
+      : restaurant?.priceRange === "$$"
+      ? 180
+      : 90;
+    return perGuest * guestCount;
+  }, [guestCount, restaurant?.priceRange]);
+
+  const handleBookTable = () => {
+    if (!canBook) return;
+    setBookingSubmitted(true);
+    window.setTimeout(() => {
+      setShowBookingSheet(false);
+      setBookingSubmitted(false);
+    }, 1600);
+  };
 
   if (!restaurant) {
     return (
@@ -135,12 +168,187 @@ const RestaurantDetailPage = () => {
             className="flex-1 flex items-center justify-center gap-2 rounded-xl gradient-primary py-3.5 text-sm font-semibold text-primary-foreground">
             <CalendarCheck className="h-4 w-4" />{t("detail.checkIn")}
           </motion.button>
-          <motion.button whileTap={{ scale: 0.97 }}
+          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowBookingSheet(true)}
             className="flex-1 flex items-center justify-center gap-2 rounded-xl border-2 border-primary py-3.5 text-sm font-semibold text-primary">
             {t("detail.bookTable")}
           </motion.button>
         </div>
       </div>
+
+      {showBookingSheet && (
+        <div className="fixed inset-0 z-50 flex items-end">
+          <button
+            aria-label="Close"
+            className="absolute inset-0 bg-black/40"
+            onClick={() => {
+              setShowBookingSheet(false);
+              setBookingSubmitted(false);
+            }}
+          />
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 260, damping: 28 }}
+            className="relative w-full rounded-t-3xl bg-card p-5 pb-7 shadow-elevated"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-display text-base font-bold">Book a table</h3>
+                <p className="text-xs text-muted-foreground">Mock reservation flow for {restaurant.name}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowBookingSheet(false);
+                  setBookingSubmitted(false);
+                }}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {bookingSubmitted ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="rounded-2xl bg-primary/10 px-4 py-6 text-center"
+              >
+                <div className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full gradient-primary">
+                  <Check className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <p className="font-display text-sm font-semibold">Reservation Confirmed</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {selectedDate} at {selectedTime} for {guestCount} {guestCount === 1 ? "guest" : "guests"}
+                </p>
+              </motion.div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Date</p>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {dateOptions.map((date) => (
+                      <button
+                        key={date}
+                        onClick={() => setSelectedDate(date)}
+                        className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                          selectedDate === date
+                            ? "gradient-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {date}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Time</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {timeOptions.map((time) => (
+                      <button
+                        key={time}
+                        onClick={() => setSelectedTime(time)}
+                        className={`rounded-xl px-2 py-2 text-xs font-medium transition-all ${
+                          selectedTime === time
+                            ? "gradient-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Guests</p>
+                  <div className="flex items-center justify-between rounded-xl bg-muted px-3 py-2">
+                    <span className="text-sm font-medium">Party size</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setGuestCount((prev) => Math.max(1, prev - 1))}
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-background text-sm font-bold"
+                      >
+                        -
+                      </button>
+                      <span className="w-6 text-center text-sm font-semibold">{guestCount}</span>
+                      <button
+                        onClick={() => setGuestCount((prev) => Math.min(12, prev + 1))}
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-background text-sm font-bold"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Seating</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setSeating("indoor")}
+                      className={`rounded-xl px-3 py-2 text-sm font-medium transition-all ${
+                        seating === "indoor" ? "gradient-primary text-primary-foreground" : "bg-muted"
+                      }`}
+                    >
+                      Indoor
+                    </button>
+                    <button
+                      onClick={() => setSeating("outdoor")}
+                      className={`rounded-xl px-3 py-2 text-sm font-medium transition-all ${
+                        seating === "outdoor" ? "gradient-primary text-primary-foreground" : "bg-muted"
+                      }`}
+                    >
+                      Outdoor
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Occasion</p>
+                  <select
+                    value={occasion}
+                    onChange={(e) => setOccasion(e.target.value as "none" | "birthday" | "date" | "business")}
+                    className="w-full rounded-xl bg-muted px-3 py-2 text-sm outline-none"
+                  >
+                    <option value="none">No occasion</option>
+                    <option value="birthday">Birthday</option>
+                    <option value="date">Date night</option>
+                    <option value="business">Business meal</option>
+                  </select>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Special request</p>
+                  <textarea
+                    value={bookingNote}
+                    onChange={(e) => setBookingNote(e.target.value)}
+                    placeholder="Allergies, wheelchair access, cake, etc."
+                    className="h-16 w-full resize-none rounded-xl bg-muted px-3 py-2 text-sm outline-none"
+                  />
+                </div>
+
+                <div className="rounded-xl bg-primary/10 px-3 py-2 text-xs text-foreground/80">
+                  Estimated spend: <span className="font-semibold">{estimatedSpend}k VND</span>
+                </div>
+
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  disabled={!canBook}
+                  onClick={handleBookTable}
+                  className={`w-full rounded-xl py-3 text-sm font-semibold transition-all ${
+                    canBook ? "gradient-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  Confirm reservation
+                </motion.button>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

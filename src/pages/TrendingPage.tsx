@@ -7,6 +7,25 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 type TimeFilter = "today" | "week" | "all";
 
+type SearchMockItem = {
+  id: string;
+  name: string;
+  subtitle: string;
+  type: "restaurant" | "dish" | "area";
+  restaurantId?: string;
+};
+
+const searchMockData: SearchMockItem[] = [
+  { id: "res-1", name: "The Green Patio", subtitle: "Restaurant · District 1", type: "restaurant", restaurantId: "1" },
+  { id: "res-2", name: "Saigon BBQ House", subtitle: "Restaurant · District 1", type: "restaurant", restaurantId: "2" },
+  { id: "dish-1", name: "Banh Mi", subtitle: "Popular dish nearby", type: "dish" },
+  { id: "dish-2", name: "Com Tam", subtitle: "Popular dish nearby", type: "dish" },
+  { id: "dish-3", name: "Hu Tieu", subtitle: "Popular dish nearby", type: "dish" },
+  { id: "area-1", name: "Thao Dien", subtitle: "Area · Thu Duc", type: "area" },
+  { id: "area-2", name: "Ben Thanh", subtitle: "Area · District 1", type: "area" },
+  { id: "area-3", name: "Pham Viet Chanh", subtitle: "Area · Binh Thanh", type: "area" },
+];
+
 const HeatMapPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -27,6 +46,22 @@ const HeatMapPage = () => {
     : restaurants;
 
   const selectedRestaurant = filteredRestaurants.find((r) => r.id === selectedPin);
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const searchResults = normalizedQuery
+    ? searchMockData.filter((item) => {
+        const haystack = `${item.name} ${item.subtitle}`.toLowerCase();
+        return haystack.includes(normalizedQuery);
+      }).slice(0, 5)
+    : [];
+
+  const handleSelectSearchItem = (item: SearchMockItem) => {
+    setSearchQuery(item.name);
+    if (item.restaurantId) {
+      setSelectedPin(item.restaurantId);
+      return;
+    }
+    setSelectedPin(null);
+  };
 
   const toPosition = (lat: number, lng: number) => ({
     x: ((lng - 106.670) / 0.045) * 100,
@@ -76,14 +111,14 @@ const HeatMapPage = () => {
         </div>
 
         {/* Profile avatar - top right */}
-        <div className="absolute top-14 right-5 z-20">
+        {/* <div className="absolute top-14 right-5 z-20">
           <div className="relative">
             <img src={userProfile.avatar} alt="" className="h-10 w-10 rounded-full object-cover ring-2 ring-card shadow-elevated" />
             <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive border-2 border-card flex items-center justify-center">
               <span className="text-[8px] text-destructive-foreground font-bold">3</span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Food photo pins */}
         {filteredRestaurants.map((r) => {
@@ -194,6 +229,21 @@ const HeatMapPage = () => {
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
+
+          {searchResults.length > 0 && (
+            <div className="mt-2 rounded-2xl bg-card/95 backdrop-blur-sm p-2 shadow-elevated">
+              {searchResults.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleSelectSearchItem(item)}
+                  className="w-full rounded-xl px-3 py-2 text-left hover:bg-muted/70 transition-colors"
+                >
+                  <p className="text-sm font-medium text-foreground">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">{item.subtitle}</p>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
