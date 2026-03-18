@@ -57,15 +57,16 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* User Card */}
+      {/* User Card - clickable */}
       <div className="px-5">
-        <div className="rounded-2xl gradient-card shadow-card p-5">
+        <div className="rounded-2xl gradient-card shadow-card p-5 cursor-pointer" onClick={() => navigate("/user-profile")}>
           <div className="flex items-center gap-4">
             <img src={userProfile.avatar} alt={userProfile.name} className="h-16 w-16 rounded-full object-cover ring-2 ring-primary ring-offset-2 ring-offset-background" />
-            <div>
+            <div className="flex-1">
               <h2 className="font-display text-lg font-bold">{userProfile.name}</h2>
               <p className="text-sm text-muted-foreground">{userProfile.username}</p>
             </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </div>
 
           <div className="mt-4 grid grid-cols-3 gap-3">
