@@ -73,6 +73,9 @@ const translations: Record<string, Record<Language, string>> = {
   "heatmap.hottest": { en: "Hottest Right Now", vi: "Nóng nhất" },
   "heatmap.checkins": { en: "check-ins", vi: "check-in" },
   "heatmap.friends": { en: "friends", vi: "bạn bè" },
+  "heatmap.liveCheckin": { en: "Live Check-in", vi: "Check-in realtime" },
+  "heatmap.viewRestaurant": { en: "View Restaurant", vi: "Xem quán" },
+  "heatmap.storyHint": { en: "Tap left/right to switch story", vi: "Chạm trái/phải để chuyển story" },
 
   // Profile
   "profile.title": { en: "Profile", vi: "Cá nhân" },

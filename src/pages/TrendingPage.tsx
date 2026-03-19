@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Navigation, Sparkles } from "lucide-react";
-import { restaurants, userProfile } from "@/data/mockData";
+import { Search, Navigation, Sparkles, X } from "lucide-react";
+import { restaurants } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -13,6 +13,17 @@ type SearchMockItem = {
   subtitle: string;
   type: "restaurant" | "dish" | "area";
   restaurantId?: string;
+};
+
+type FriendStoryItem = {
+  id: string;
+  friendName: string;
+  avatar: string;
+  restaurantId: string;
+  restaurantName: string;
+  comment: string;
+  timestamp: string;
+  image: string;
 };
 
 const searchMockData: SearchMockItem[] = [
@@ -32,6 +43,8 @@ const HeatMapPage = () => {
   const [selectedPin, setSelectedPin] = useState<string | null>(null);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("today");
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeStoryFriend, setActiveStoryFriend] = useState<string | null>(null);
+  const [activeStoryIndex, setActiveStoryIndex] = useState(0);
 
   const timeFilters: { id: TimeFilter; labelKey: string }[] = [
     { id: "today", labelKey: "heatmap.today" },
@@ -44,6 +57,37 @@ const HeatMapPage = () => {
     : timeFilter === "week"
     ? restaurants.filter((_, i) => [0, 1, 2, 3, 5, 7].includes(i))
     : restaurants;
+
+  const friendStories = useMemo(() => {
+    const storyMap: Record<string, FriendStoryItem[]> = {};
+
+    filteredRestaurants.forEach((restaurant) => {
+      restaurant.friendFeedback.forEach((feedback, feedbackIndex) => {
+        if (!feedback.reviewImage) return;
+
+        const story: FriendStoryItem = {
+          id: `${restaurant.id}-${feedback.name}-${feedbackIndex}`,
+          friendName: feedback.name,
+          avatar: feedback.avatar,
+          restaurantId: restaurant.id,
+          restaurantName: restaurant.name,
+          comment: feedback.comment,
+          timestamp: feedback.timestamp,
+          image: feedback.reviewImage,
+        };
+
+        if (!storyMap[feedback.name]) {
+          storyMap[feedback.name] = [];
+        }
+        storyMap[feedback.name].push(story);
+      });
+    });
+
+    return storyMap;
+  }, [filteredRestaurants]);
+
+  const activeStoryList = activeStoryFriend ? (friendStories[activeStoryFriend] || []) : [];
+  const activeStory = activeStoryList[activeStoryIndex] || null;
 
   const selectedRestaurant = filteredRestaurants.find((r) => r.id === selectedPin);
   const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -62,6 +106,45 @@ const HeatMapPage = () => {
     }
     setSelectedPin(null);
   };
+
+  const openFriendStory = (friendName: string) => {
+    if (!friendStories[friendName] || friendStories[friendName].length === 0) return;
+    setActiveStoryFriend(friendName);
+    setActiveStoryIndex(0);
+  };
+
+  const closeStory = () => {
+    setActiveStoryFriend(null);
+    setActiveStoryIndex(0);
+  };
+
+  const nextStory = () => {
+    if (!activeStoryFriend) return;
+    if (activeStoryIndex < activeStoryList.length - 1) {
+      setActiveStoryIndex((prev) => prev + 1);
+      return;
+    }
+    closeStory();
+  };
+
+  const prevStory = () => {
+    if (activeStoryIndex > 0) {
+      setActiveStoryIndex((prev) => prev - 1);
+    }
+  };
+
+  useEffect(() => {
+    if (!activeStoryFriend || activeStoryList.length === 0) return;
+    const timer = window.setTimeout(() => {
+      setActiveStoryIndex((prev) => {
+        if (prev < activeStoryList.length - 1) return prev + 1;
+        setActiveStoryFriend(null);
+        return 0;
+      });
+    }, 2800);
+
+    return () => window.clearTimeout(timer);
+  }, [activeStoryFriend, activeStoryIndex, activeStoryList.length]);
 
   const toPosition = (lat: number, lng: number) => ({
     x: ((lng - 106.670) / 0.045) * 100,
@@ -155,7 +238,17 @@ const HeatMapPage = () => {
                 {isSelected && r.friendFeedback.length > 0 && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-2 -right-4 flex -space-x-1.5">
                     {r.friendFeedback.slice(0, 3).map((f) => (
-                      <img key={f.name} src={f.avatar} alt={f.name} className="h-5 w-5 rounded-full border-2 border-card object-cover" />
+                      <button
+                        key={f.name}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openFriendStory(f.name);
+                        }}
+                        className="relative"
+                      >
+                        <img src={f.avatar} alt={f.name} className="h-5 w-5 rounded-full border-2 border-card object-cover" />
+                        <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-destructive border border-card" />
+                      </button>
                     ))}
                   </motion.div>
                 )}
@@ -246,6 +339,94 @@ const HeatMapPage = () => {
           )}
         </div>
       </div>
+
+      <AnimatePresence>
+        {activeStory && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black"
+          >
+            <button
+              aria-label="Close story"
+              onClick={closeStory}
+              className="absolute inset-0"
+            />
+
+            <div className="relative mx-auto h-full w-full max-w-lg overflow-hidden">
+              <img src={activeStory.image} alt={activeStory.comment} className="h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/10 to-black/55" />
+
+              <div className="absolute left-0 right-0 top-0 p-3">
+                <div className="mb-3 flex gap-1">
+                  {activeStoryList.map((story, index) => (
+                    <span
+                      key={story.id}
+                      className={`h-1 flex-1 rounded-full ${index <= activeStoryIndex ? "bg-white" : "bg-white/35"}`}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <img src={activeStory.avatar} alt={activeStory.friendName} className="h-9 w-9 rounded-full border-2 border-white/60 object-cover" />
+                    <div>
+                      <p className="text-sm font-semibold text-white">{activeStory.friendName}</p>
+                      <p className="text-xs text-white/80">{activeStory.timestamp} · {t("heatmap.liveCheckin")}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={closeStory}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15"
+                  >
+                    <X className="h-4 w-4 text-white" />
+                  </button>
+                </div>
+              </div>
+
+              <button
+                aria-label="Previous story"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  prevStory();
+                }}
+                className="absolute left-0 top-0 h-full w-1/2"
+              />
+              <button
+                aria-label="Next story"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextStory();
+                }}
+                className="absolute right-0 top-0 h-full w-1/2"
+              />
+
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <p className="text-sm font-medium text-white">{activeStory.comment}</p>
+                <p className="mt-1 text-xs text-white/85">{activeStory.restaurantName}</p>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="rounded-full bg-destructive/85 px-2.5 py-1 text-[10px] font-semibold text-white">
+                    {t("heatmap.liveCheckin")}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/restaurant/${activeStory.restaurantId}`);
+                      closeStory();
+                    }}
+                    className="rounded-full bg-white/20 px-3 py-1.5 text-xs font-medium text-white"
+                  >
+                    {t("heatmap.viewRestaurant")}
+                  </button>
+                </div>
+                <p className="mt-2 text-[10px] text-white/80">{t("heatmap.storyHint")}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
