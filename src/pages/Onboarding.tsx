@@ -130,7 +130,7 @@ const OnboardingPage = () => {
     }
 
     localStorage.setItem("onboarding-selections", JSON.stringify(selections));
-    navigate("/");
+    navigate("/discover");
   };
 
   const prev = () => {
@@ -160,7 +160,7 @@ const OnboardingPage = () => {
           </span>
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/discover")}
             className="text-sm text-muted-foreground font-medium"
           >
             {t("onboarding.skip")}

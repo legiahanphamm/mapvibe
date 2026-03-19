@@ -36,7 +36,7 @@ const LoginPage = () => {
     setSubmitted(true);
     
     setTimeout(() => {
-      navigate("/");
+      navigate("/discover");
     }, 1800);
   };
 

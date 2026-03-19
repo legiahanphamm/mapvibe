@@ -9,7 +9,7 @@ const BottomNav = () => {
   const { t } = useLanguage();
 
   const tabs = [
-    { path: "/", icon: Compass, labelKey: "nav.discover" },
+    { path: "/discover", icon: Compass, labelKey: "nav.discover" },
     { path: "/feed", icon: Rss, labelKey: "nav.feed" },
     { path: "/checkin", icon: Camera, labelKey: "nav.checkin" },
     { path: "/trending", icon: Flame, labelKey: "nav.heatmap" },

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import BottomNav from "@/components/BottomNav";
 import DiscoverPage from "@/pages/DiscoverPage";
@@ -34,7 +34,8 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
-              <Route path="/" element={<DiscoverPage />} />
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/discover" element={<DiscoverPage />} />
               <Route path="/ai" element={<AISearchPage />} />
               <Route path="/feed" element={<FeedPage />} />
               <Route path="/checkin" element={<CheckInPage />} />
