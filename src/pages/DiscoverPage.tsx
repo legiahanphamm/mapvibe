@@ -142,7 +142,7 @@ const DiscoverPage = () => {
             <h1 className="text-2xl font-display font-bold mt-0.5">{t("discover.title")}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <img src="/mapvibe-logo.svg" alt="MapVibe logo" className="h-10 w-10 rounded-full object-cover shadow-card" />
+            <img src="/mapvibe.png" alt="MapVibe logo" className="h-10 w-10 rounded-full object-cover shadow-card" />
             <motion.div whileTap={{ scale: 0.9 }} onClick={() => navigate("/spin")} className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10">
               <span className="text-lg">🎰</span>
             </motion.div>

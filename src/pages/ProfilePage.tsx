@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Settings, Flame, Heart, Globe, ChevronRight } from "lucide-react";
+import { Settings, Flame, Heart, Globe, ChevronRight, X, UserPlus, CalendarDays, Plus } from "lucide-react";
 import { userProfile, restaurants } from "@/data/mockData";
 import { BarChart, Bar, XAxis, ResponsiveContainer } from "recharts";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
@@ -13,6 +14,10 @@ const weekDays = {
 const ProfilePage = () => {
   const { lang, setLang, t } = useLanguage();
   const navigate = useNavigate();
+  const [showSettings, setShowSettings] = useState(false);
+  const [displayName, setDisplayName] = useState(userProfile.name);
+  const [username, setUsername] = useState(userProfile.username);
+
   const budgetPercent = Math.round((userProfile.monthlySpent / userProfile.monthlyBudget) * 100);
   const favRestaurants = restaurants.filter((r) => userProfile.favoriteRestaurants.includes(r.id));
 
@@ -26,7 +31,7 @@ const ProfilePage = () => {
       <div className="px-5 pt-14 pb-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-display font-bold">{t("profile.title")}</h1>
-          <button className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
+          <button onClick={() => setShowSettings(true)} className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
             <Settings className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
@@ -63,8 +68,8 @@ const ProfilePage = () => {
           <div className="flex items-center gap-4">
             <img src={userProfile.avatar} alt={userProfile.name} className="h-16 w-16 rounded-full object-cover ring-2 ring-primary ring-offset-2 ring-offset-background" />
             <div className="flex-1">
-              <h2 className="font-display text-lg font-bold">{userProfile.name}</h2>
-              <p className="text-sm text-muted-foreground">{userProfile.username}</p>
+              <h2 className="font-display text-lg font-bold">{displayName}</h2>
+              <p className="text-sm text-muted-foreground">{username}</p>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </div>
@@ -152,7 +157,15 @@ const ProfilePage = () => {
 
       {/* Friends */}
       <div className="mt-5 px-5">
-        <h2 className="font-display text-sm font-semibold mb-2">{t("profile.friends")}</h2>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="font-display text-sm font-semibold">{t("profile.friends")}</h2>
+          <button
+            onClick={() => navigate("/friends/add")}
+            className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+          >
+            <Plus className="h-3.5 w-3.5" /> {t("profile.addFriendsButton")}
+          </button>
+        </div>
         <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
           {userProfile.friends.map((f) => (
             <div key={f.name} className="flex flex-col items-center">
@@ -172,6 +185,53 @@ const ProfilePage = () => {
           ))}
         </div>
       </div>
+
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
+          <button className="absolute inset-0 bg-black/40" onClick={() => setShowSettings(false)} />
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            className="relative w-full max-w-lg rounded-t-3xl bg-card p-5 pb-7 shadow-elevated"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-display text-base font-bold">{t("profile.settingsTitle")}</h3>
+              <button onClick={() => setShowSettings(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="mb-3">
+              <p className="mb-1 text-xs font-semibold text-muted-foreground">{t("profile.displayName")}</p>
+              <input
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="w-full rounded-xl bg-muted px-3 py-2 text-sm outline-none"
+              />
+            </div>
+
+            <div className="mb-4">
+              <p className="mb-1 text-xs font-semibold text-muted-foreground">{t("profile.username")}</p>
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value.startsWith("@") ? e.target.value : `@${e.target.value}`)}
+                className="w-full rounded-xl bg-muted px-3 py-2 text-sm outline-none"
+              />
+            </div>
+
+            <button
+              onClick={() => setShowSettings(false)}
+              className="w-full rounded-xl gradient-primary py-3 text-sm font-semibold text-primary-foreground"
+            >
+              {t("profile.saveChanges")}
+            </button>
+            <p className="mt-3 flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
+              <UserPlus className="h-3.5 w-3.5" /> {t("profile.editProfile")}
+            </p>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

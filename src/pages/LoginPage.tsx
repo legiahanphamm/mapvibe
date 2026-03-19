@@ -75,7 +75,7 @@ const LoginPage = () => {
       {/* Header */}
       <div className="px-5 pt-12 pb-8 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src="/mapvibe-logo.svg" alt="MapVibe logo" className="h-8 w-8 rounded-full object-cover shadow-card" />
+          <img src="/mapvibe.png" alt="MapVibe logo" className="h-8 w-8 rounded-full object-cover shadow-card" />
           <span className="font-display text-lg font-bold">MapVibe</span>
         </div>
         <div className="flex gap-1.5">
@@ -110,7 +110,7 @@ const LoginPage = () => {
           transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <img src="/mapvibe-logo.svg" alt="MapVibe logo" className="h-20 w-20 rounded-2xl object-cover shadow-elevated mb-5" />
+          <img src="/mapvibe.png" alt="MapVibe logo" className="h-20 w-20 rounded-2xl object-cover shadow-elevated mb-5" />
           <h1 className="font-display text-3xl font-bold mb-2">{t("login.title")}</h1>
           <p className="text-muted-foreground">{t("login.subtitle")}</p>
         </motion.div>

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Compass, Rss, Camera, Flame, User } from "lucide-react";
@@ -15,11 +16,25 @@ const BottomNav = () => {
     { path: "/profile", icon: User, labelKey: "nav.profile" },
   ];
 
-  if (
+  const shouldHide =
     location.pathname.startsWith("/restaurant/") ||
     location.pathname === "/onboarding" ||
-    location.pathname === "/login"
-  ) return null;
+    location.pathname === "/login" ||
+    location.pathname === "/checkin" ||
+    location.pathname === "/spin" ||
+    location.pathname === "/add-budget" ||
+    location.pathname === "/friends/add" ||
+    location.pathname === "/trending" ||
+    location.pathname === "/buget";
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("nav-hidden", shouldHide);
+    return () => {
+      document.documentElement.classList.remove("nav-hidden");
+    };
+  }, [shouldHide]);
+
+  if (shouldHide) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border">

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Navigation, Sparkles, X } from "lucide-react";
-import { restaurants } from "@/data/mockData";
+import { Search, Navigation, Sparkles, X, ArrowLeft } from "lucide-react";
+import { restaurants, userProfile } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -15,15 +15,24 @@ type SearchMockItem = {
   restaurantId?: string;
 };
 
-type FriendStoryItem = {
+type HistoryVisit = {
   id: string;
-  friendName: string;
-  avatar: string;
+  user: string;
+  restaurantId: string;
+  image: string;
+  timestamp: string;
+  withWho: string;
+  note: string;
+};
+
+type HistoryGroup = {
+  id: string;
   restaurantId: string;
   restaurantName: string;
-  comment: string;
-  timestamp: string;
-  image: string;
+  lat: number;
+  lng: number;
+  visits: HistoryVisit[];
+  coverImage: string;
 };
 
 const searchMockData: SearchMockItem[] = [
@@ -43,8 +52,9 @@ const HeatMapPage = () => {
   const [selectedPin, setSelectedPin] = useState<string | null>(null);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("today");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeStoryFriend, setActiveStoryFriend] = useState<string | null>(null);
-  const [activeStoryIndex, setActiveStoryIndex] = useState(0);
+  const [historyFriend, setHistoryFriend] = useState<string>("all");
+  const [selectedHistoryGroupId, setSelectedHistoryGroupId] = useState<string | null>(null);
+  const [selectedHistoryVisitId, setSelectedHistoryVisitId] = useState<string | null>(null);
 
   const timeFilters: { id: TimeFilter; labelKey: string }[] = [
     { id: "today", labelKey: "heatmap.today" },
@@ -58,36 +68,89 @@ const HeatMapPage = () => {
     ? restaurants.filter((_, i) => [0, 1, 2, 3, 5, 7].includes(i))
     : restaurants;
 
-  const friendStories = useMemo(() => {
-    const storyMap: Record<string, FriendStoryItem[]> = {};
+  const myVisits = useMemo<HistoryVisit[]>(() => [
+    {
+      id: "visit-me-1",
+      user: "me",
+      restaurantId: "1",
+      image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&h=360&fit=crop",
+      timestamp: t("heatmap.mock.time1"),
+      withWho: "Minh",
+      note: t("heatmap.mock.meJournal1"),
+    },
+    {
+      id: "visit-me-2",
+      user: "me",
+      restaurantId: "3",
+      image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=500&h=360&fit=crop",
+      timestamp: t("heatmap.mock.time2"),
+      withWho: "Linh",
+      note: t("heatmap.mock.meCaption1"),
+    },
+    {
+      id: "visit-me-3",
+      user: "me",
+      restaurantId: "3",
+      image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500&h=360&fit=crop",
+      timestamp: "3d ago",
+      withWho: "Hana",
+      note: t("heatmap.mock.meCaption2"),
+    },
+  ], [t]);
 
-    filteredRestaurants.forEach((restaurant) => {
-      restaurant.friendFeedback.forEach((feedback, feedbackIndex) => {
-        if (!feedback.reviewImage) return;
-
-        const story: FriendStoryItem = {
-          id: `${restaurant.id}-${feedback.name}-${feedbackIndex}`,
-          friendName: feedback.name,
-          avatar: feedback.avatar,
+  const friendVisits = useMemo<HistoryVisit[]>(() => {
+    return filteredRestaurants.flatMap((restaurant) =>
+      restaurant.friendFeedback
+        .filter((feedback) => feedback.reviewImage)
+        .map((feedback, index) => ({
+          id: `visit-${restaurant.id}-${feedback.name}-${index}`,
+          user: feedback.name,
           restaurantId: restaurant.id,
-          restaurantName: restaurant.name,
-          comment: feedback.comment,
+          image: feedback.reviewImage as string,
           timestamp: feedback.timestamp,
-          image: feedback.reviewImage,
-        };
+          withWho: restaurant.friendsVisited.slice(0, 2).join(", ") || t("heatmap.me"),
+          note: feedback.comment,
+        }))
+    );
+  }, [filteredRestaurants, t]);
 
-        if (!storyMap[feedback.name]) {
-          storyMap[feedback.name] = [];
-        }
-        storyMap[feedback.name].push(story);
-      });
+  const historyFriendOptions = useMemo(() => {
+    const names = Array.from(new Set(friendVisits.map((item) => item.user)));
+    return ["all", "me", ...names];
+  }, [friendVisits]);
+
+  const historyGroups = useMemo<HistoryGroup[]>(() => {
+    const sourceVisits = historyFriend === "all"
+      ? [...myVisits, ...friendVisits]
+      : historyFriend === "me"
+      ? myVisits
+      : friendVisits.filter((visit) => visit.user === historyFriend);
+
+    const byRestaurant: Record<string, HistoryVisit[]> = {};
+    sourceVisits.forEach((visit) => {
+      if (!byRestaurant[visit.restaurantId]) byRestaurant[visit.restaurantId] = [];
+      byRestaurant[visit.restaurantId].push(visit);
     });
 
-    return storyMap;
-  }, [filteredRestaurants]);
+    return Object.entries(byRestaurant)
+      .map(([restaurantId, visits]) => {
+        const restaurant = filteredRestaurants.find((item) => item.id === restaurantId);
+        if (!restaurant) return null;
+        return {
+          id: `group-footprint-${restaurantId}`,
+          restaurantId,
+          restaurantName: restaurant.name,
+          lat: restaurant.lat,
+          lng: restaurant.lng,
+          visits,
+          coverImage: visits[0]?.image || restaurant.image,
+        };
+      })
+      .filter(Boolean) as HistoryGroup[];
+  }, [historyFriend, myVisits, friendVisits, filteredRestaurants]);
 
-  const activeStoryList = activeStoryFriend ? (friendStories[activeStoryFriend] || []) : [];
-  const activeStory = activeStoryList[activeStoryIndex] || null;
+  const selectedHistoryGroup = historyGroups.find((group) => group.id === selectedHistoryGroupId) || null;
+  const selectedHistoryVisit = selectedHistoryGroup?.visits.find((visit) => visit.id === selectedHistoryVisitId) || null;
 
   const selectedRestaurant = filteredRestaurants.find((r) => r.id === selectedPin);
   const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -107,45 +170,6 @@ const HeatMapPage = () => {
     setSelectedPin(null);
   };
 
-  const openFriendStory = (friendName: string) => {
-    if (!friendStories[friendName] || friendStories[friendName].length === 0) return;
-    setActiveStoryFriend(friendName);
-    setActiveStoryIndex(0);
-  };
-
-  const closeStory = () => {
-    setActiveStoryFriend(null);
-    setActiveStoryIndex(0);
-  };
-
-  const nextStory = () => {
-    if (!activeStoryFriend) return;
-    if (activeStoryIndex < activeStoryList.length - 1) {
-      setActiveStoryIndex((prev) => prev + 1);
-      return;
-    }
-    closeStory();
-  };
-
-  const prevStory = () => {
-    if (activeStoryIndex > 0) {
-      setActiveStoryIndex((prev) => prev - 1);
-    }
-  };
-
-  useEffect(() => {
-    if (!activeStoryFriend || activeStoryList.length === 0) return;
-    const timer = window.setTimeout(() => {
-      setActiveStoryIndex((prev) => {
-        if (prev < activeStoryList.length - 1) return prev + 1;
-        setActiveStoryFriend(null);
-        return 0;
-      });
-    }, 2800);
-
-    return () => window.clearTimeout(timer);
-  }, [activeStoryFriend, activeStoryIndex, activeStoryList.length]);
-
   const toPosition = (lat: number, lng: number) => ({
     x: ((lng - 106.670) / 0.045) * 100,
     y: ((10.795 - lat) / 0.050) * 100,
@@ -155,6 +179,13 @@ const HeatMapPage = () => {
     <div className="min-h-screen safe-bottom relative">
       {/* Map area - full height with muted tones */}
       <div className="relative w-full h-screen bg-accent/30 overflow-hidden">
+        <div className="absolute top-14 left-5 z-30">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-1 rounded-full bg-card/90 px-3 py-2 backdrop-blur-sm shadow-card">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-xs font-medium">{t("heatmap.back")}</span>
+          </button>
+        </div>
+
         {/* Simulated map texture */}
         <div className="absolute inset-0">
           {/* Water features */}
@@ -190,6 +221,26 @@ const HeatMapPage = () => {
                 {t(tf.labelKey)}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="absolute top-28 left-0 right-0 z-20 px-5">
+          <div className="mx-auto w-fit rounded-full bg-card/90 p-1.5 backdrop-blur-sm shadow-card">
+            <select
+              value={historyFriend}
+              onChange={(e) => {
+                setHistoryFriend(e.target.value);
+                setSelectedHistoryGroupId(null);
+                setSelectedHistoryVisitId(null);
+              }}
+              className="min-w-[140px] rounded-full border border-border/60 bg-background px-3 py-1.5 text-xs font-medium text-foreground outline-none"
+            >
+              {historyFriendOptions.map((friend) => (
+                <option key={friend} value={friend}>
+                  {friend === "all" ? t("heatmap.allUsers") : friend === "me" ? t("heatmap.me") : friend}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -238,22 +289,35 @@ const HeatMapPage = () => {
                 {isSelected && r.friendFeedback.length > 0 && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-2 -right-4 flex -space-x-1.5">
                     {r.friendFeedback.slice(0, 3).map((f) => (
-                      <button
-                        key={f.name}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openFriendStory(f.name);
-                        }}
-                        className="relative"
-                      >
+                      <div key={f.name} className="relative">
                         <img src={f.avatar} alt={f.name} className="h-5 w-5 rounded-full border-2 border-card object-cover" />
                         <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-destructive border border-card" />
-                      </button>
+                      </div>
                     ))}
                   </motion.div>
                 )}
               </motion.button>
             </div>
+          );
+        })}
+
+        {historyGroups.map((group) => {
+          const pos = toPosition(group.lat, group.lng);
+          const isActive = selectedHistoryGroupId === group.id;
+          return (
+            <button
+              key={group.id}
+              onClick={() => setSelectedHistoryGroupId(group.id)}
+              className="absolute z-20"
+              style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: "translate(-50%, -50%)" }}
+            >
+              <div className={`relative h-11 w-11 overflow-hidden rounded-xl border-2 shadow-elevated transition-all ${isActive ? "border-primary scale-110" : "border-card"}`}>
+                <img src={group.coverImage} alt={group.restaurantName} className="h-full w-full object-cover" />
+                <span className="absolute -bottom-1 -right-1 rounded-full bg-card px-1.5 py-0.5 text-[9px] font-bold text-primary">
+                  {group.visits.length}
+                </span>
+              </div>
+            </button>
           );
         })}
 
@@ -341,87 +405,113 @@ const HeatMapPage = () => {
       </div>
 
       <AnimatePresence>
-        {activeStory && (
+        {selectedHistoryGroup && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40">
+            <button className="absolute inset-0 bg-black/35" onClick={() => setSelectedHistoryGroupId(null)} />
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              className="absolute left-1/2 top-1/2 w-[calc(100%-2.5rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-card p-3 shadow-elevated max-h-[min(75vh,560px)] overflow-hidden"
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold">{selectedHistoryGroup.restaurantName}</p>
+                  <p className="text-[11px] text-muted-foreground">{selectedHistoryGroup.visits.length} {t("heatmap.visits")}</p>
+                </div>
+                <button onClick={() => navigate(`/restaurant/${selectedHistoryGroup.restaurantId}`)} className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                  {t("heatmap.viewRestaurant")}
+                </button>
+              </div>
+
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {selectedHistoryGroup.visits.map((visit) => (
+                  <button
+                    key={visit.id}
+                    onClick={() => setSelectedHistoryVisitId(visit.id)}
+                    className="min-w-[170px] rounded-xl bg-muted/70 p-2 text-left"
+                  >
+                    <img src={visit.image} alt={selectedHistoryGroup.restaurantName} className="mb-2 h-24 w-full rounded-lg object-cover" />
+                    <p className="text-[11px] font-semibold">{visit.timestamp}</p>
+                    <p className="text-[10px] text-muted-foreground">{t("heatmap.withWho")}: {visit.withWho}</p>
+                    <p className="mt-1 line-clamp-3 text-[10px] text-foreground/85">{visit.note}</p>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedHistoryVisit && selectedHistoryGroup && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black"
+            className="fixed inset-0 z-50 bg-[#07111a]"
           >
             <button
-              aria-label="Close story"
-              onClick={closeStory}
+              aria-label="Close detail"
+              onClick={() => setSelectedHistoryVisitId(null)}
               className="absolute inset-0"
             />
 
-            <div className="relative mx-auto h-full w-full max-w-lg overflow-hidden">
-              <img src={activeStory.image} alt={activeStory.comment} className="h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/10 to-black/55" />
+            <div className="relative mx-auto h-full w-full max-w-lg overflow-hidden px-3 pb-3 pt-14">
+              <div className="relative h-full rounded-[30px] bg-black/35 p-3 backdrop-blur-sm">
+                <img src={selectedHistoryVisit.image} alt={selectedHistoryGroup.restaurantName} className="h-[72%] w-full rounded-[26px] object-cover" />
 
-              <div className="absolute left-0 right-0 top-0 p-3">
-                <div className="mb-3 flex gap-1">
-                  {activeStoryList.map((story, index) => (
-                    <span
-                      key={story.id}
-                      className={`h-1 flex-1 rounded-full ${index <= activeStoryIndex ? "bg-white" : "bg-white/35"}`}
-                    />
-                  ))}
-                </div>
+                <div className="pointer-events-none absolute inset-x-3 top-3 h-[72%] rounded-[26px] bg-gradient-to-b from-black/35 via-transparent to-black/55" />
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <img src={activeStory.avatar} alt={activeStory.friendName} className="h-9 w-9 rounded-full border-2 border-white/60 object-cover" />
+                <div className="absolute left-6 right-6 top-6 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/70 bg-white/20 text-xs font-semibold text-white">
+                      {(selectedHistoryVisit.user === "me" ? t("heatmap.me") : selectedHistoryVisit.user).slice(0, 1).toUpperCase()}
+                    </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{activeStory.friendName}</p>
-                      <p className="text-xs text-white/80">{activeStory.timestamp} · {t("heatmap.liveCheckin")}</p>
+                      <p className="text-2xl font-bold text-white drop-shadow-sm">{selectedHistoryVisit.user === "me" ? t("heatmap.me") : selectedHistoryVisit.user}</p>
+                      <p className="text-sm text-white/80">{selectedHistoryVisit.timestamp}</p>
                     </div>
                   </div>
-
                   <button
-                    onClick={closeStory}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15"
+                    onClick={() => setSelectedHistoryVisitId(null)}
+                    className="rounded-full bg-black/35 p-2"
                   >
                     <X className="h-4 w-4 text-white" />
                   </button>
                 </div>
-              </div>
 
-              <button
-                aria-label="Previous story"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  prevStory();
-                }}
-                className="absolute left-0 top-0 h-full w-1/2"
-              />
-              <button
-                aria-label="Next story"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  nextStory();
-                }}
-                className="absolute right-0 top-0 h-full w-1/2"
-              />
+                <div className="mt-3 rounded-2xl bg-[#0f1724] px-4 py-3 text-white shadow-elevated">
+                  <p className="text-sm font-semibold">{selectedHistoryGroup.restaurantName}</p>
+                  <p className="mt-1 text-xs text-white/80">{t("heatmap.withWho")}: {selectedHistoryVisit.withWho}</p>
+                  <p className="mt-2 text-sm text-white/95">{selectedHistoryVisit.note}</p>
+                </div>
 
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <p className="text-sm font-medium text-white">{activeStory.comment}</p>
-                <p className="mt-1 text-xs text-white/85">{activeStory.restaurantName}</p>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="rounded-full bg-destructive/85 px-2.5 py-1 text-[10px] font-semibold text-white">
-                    {t("heatmap.liveCheckin")}
-                  </span>
+                <div className="mt-4 rounded-full bg-[#2c343f] px-3 py-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-2xl leading-none text-white/80">{t("heatmap.messagePlaceholder")}</p>
+                    <div className="flex items-center gap-3 text-3xl leading-none">
+                      <button aria-label="Heart reaction">😍</button>
+                      <button aria-label="Cry reaction">😭</button>
+                      <button aria-label="Hands reaction">🫶</button>
+                      <button aria-label="More">☺</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex justify-end">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/restaurant/${activeStory.restaurantId}`);
-                      closeStory();
+                      navigate(`/restaurant/${selectedHistoryGroup.restaurantId}`);
+                      setSelectedHistoryVisitId(null);
+                      setSelectedHistoryGroupId(null);
                     }}
-                    className="rounded-full bg-white/20 px-3 py-1.5 text-xs font-medium text-white"
+                    className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white"
                   >
                     {t("heatmap.viewRestaurant")}
                   </button>
                 </div>
-                <p className="mt-2 text-[10px] text-white/80">{t("heatmap.storyHint")}</p>
               </div>
             </div>
           </motion.div>

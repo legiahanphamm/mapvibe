@@ -6,6 +6,7 @@
 
 @layer base {
   :root {
+    --bottom-nav-space: 5rem;
     --background: 30 25% 97%;
     --foreground: 20 30% 10%;
 
@@ -144,7 +145,11 @@
   }
 
   .safe-bottom {
-    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--bottom-nav-space) + env(safe-area-inset-bottom, 0px));
+  }
+
+  :root.nav-hidden {
+    --bottom-nav-space: 1rem;
   }
 
   .text-gradient-hero {

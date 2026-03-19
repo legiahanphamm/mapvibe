@@ -18,6 +18,7 @@ import RestaurantDetailPage from "@/pages/RestaurantDetailPage";
 import SpinPage from "@/pages/SpinPage";
 import LoginPage from "@/pages/LoginPage";
 import OnboardingPage from "@/pages/Onboarding";
+import AddFriendsPage from "@/pages/AddFriendsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/user-profile" element={<UserProfilePage />} />
               <Route path="/restaurant/:id" element={<RestaurantDetailPage />} />
               <Route path="/spin" element={<SpinPage />} />
+              <Route path="/friends/add" element={<AddFriendsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <BottomNav />
